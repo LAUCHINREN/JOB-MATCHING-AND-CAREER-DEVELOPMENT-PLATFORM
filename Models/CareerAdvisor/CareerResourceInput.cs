@@ -24,6 +24,11 @@ namespace JobCareerPlatform.Models
         [Display(Name = "Link (optional)")]
         public string? ContentUrl { get; set; }
 
+        [Display(Name = "Attachment (optional, e.g. PDF worksheet)")]
+        public IFormFile? AttachmentFile { get; set; }
+
+        public string? AttachmentUrl { get; set; }
+
         [StringLength(50)]
         [Display(Name = "Related Job Category (optional)")]
         public string? RelatedCategory { get; set; }

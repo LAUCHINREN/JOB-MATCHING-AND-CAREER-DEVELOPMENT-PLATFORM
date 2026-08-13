@@ -7,8 +7,9 @@
     <div class="card-body p-4">
         <h4 class="mb-4">Edit Career Resource</h4>
 
-        <form asp-action="Edit" asp-route-id="@Model.CareerResourceId" method="post">
+        <form asp-action="Edit" asp-route-id="@Model.CareerResourceId" method="post" enctype="multipart/form-data">
             <input type="hidden" asp-for="CareerResourceId" />
+            <input type="hidden" asp-for="AttachmentUrl" />
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
             <div class="mb-3">
@@ -40,6 +41,21 @@
                     <input asp-for="ContentUrl" class="form-control" />
                     <span asp-validation-for="ContentUrl" class="text-danger small"></span>
                 </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="AttachmentFile" class="form-label">Attachment (optional, PDF/JPG/PNG, max 5 MB)</label>
+                @if (!string.IsNullOrWhiteSpace(Model.AttachmentUrl))
+                {
+                    <div class="mb-2">
+                        <a href="@Model.AttachmentUrl" target="_blank" rel="noopener noreferrer" class="small">
+                            <i class="bi bi-paperclip"></i> Current attachment
+                        </a>
+                    </div>
+                }
+                <input asp-for="AttachmentFile" type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" />
+                <span asp-validation-for="AttachmentFile" class="text-danger small"></span>
+                <div class="form-text">Uploading a new file replaces the current attachment.</div>
             </div>
 
             <div class="row">

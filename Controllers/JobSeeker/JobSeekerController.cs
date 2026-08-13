@@ -4,6 +4,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Amazon;
+using Amazon.Runtime;
+using Amazon.SimpleNotificationService;
+using Amazon.SimpleNotificationService.Model;
+using System.Text.Json;
 
 namespace JobCareerPlatform.Controllers
 {
@@ -12,13 +17,16 @@ namespace JobCareerPlatform.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IConfiguration _configuration;
 
         public JobSeekerController(
             ApplicationDbContext context,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IConfiguration configuration)
         {
             _context = context;
             _userManager = userManager;
+            _configuration = configuration;
         }
 
         public async Task<IActionResult> Home()
@@ -1268,6 +1276,57 @@ namespace JobCareerPlatform.Controllers
                 .ToListAsync();
 
             return View(resources);
+        }
+
+        // POST: JobSeeker/SubscribeToResourceUpdates — opts the current user's email into the
+        // AWS SNS topic career advisors publish to (see CareerResourcesController.PublishNotificationAsync).
+        // A FilterPolicy scoped to this user's own Id is attached at subscribe time, so this
+        // subscription only ever receives messages whose "jobseeker_id" attribute includes this
+        // user — i.e. only resources ResourceMatcher actually matched them to, not every publish.
+        // AWS sends a confirmation email that must be clicked before the subscription becomes active.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SubscribeToResourceUpdates()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user?.Email == null)
+            {
+                return Challenge();
+            }
+
+            string? topicArn = _configuration["AWS:CareerResourceTopicArn"];
+            if (string.IsNullOrWhiteSpace(topicArn))
+            {
+                TempData["ErrorMessage"] = "Career resource notifications are not configured yet.";
+                return RedirectToAction(nameof(CareerResources));
+            }
+
+            var credentials = new SessionAWSCredentials(
+                _configuration["AWS:AccessKey"],
+                _configuration["AWS:SecretKey"],
+                _configuration["AWS:SessionToken"]);
+
+            using var snsClient = new AmazonSimpleNotificationServiceClient(
+                credentials, RegionEndpoint.USEast1);
+
+            string filterPolicy = JsonSerializer.Serialize(new Dictionary<string, string[]>
+            {
+                ["jobseeker_id"] = new[] { user.Id }
+            });
+
+            await snsClient.SubscribeAsync(new SubscribeRequest
+            {
+                TopicArn = topicArn,
+                Protocol = "email",
+                Endpoint = user.Email,
+                Attributes = new Dictionary<string, string>
+                {
+                    ["FilterPolicy"] = filterPolicy
+                }
+            });
+
+            TempData["SuccessMessage"] = $"Check {user.Email} for a confirmation email to complete your subscription.";
+            return RedirectToAction(nameof(CareerResources));
         }
 
         public async Task<IActionResult> MyRecommendations()

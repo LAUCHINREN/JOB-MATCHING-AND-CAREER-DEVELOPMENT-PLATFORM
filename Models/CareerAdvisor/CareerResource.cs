@@ -25,6 +25,14 @@ namespace JobCareerPlatform.Models
         [StringLength(500)]
         public string? ContentUrl { get; set; }
 
+        // Optional file attachment (PDF, worksheet, etc.) stored in S3 — separate from ContentUrl,
+        // which is for linking out to external content.
+        [StringLength(500)]
+        public string? AttachmentUrl { get; set; }
+
+        [StringLength(500)]
+        public string? AttachmentS3Key { get; set; }
+
         // Drives automatic matching to job seekers — compared against JobSeekerProfile.PreferredJobCategory.
         [StringLength(50)]
         [Display(Name = "Related Job Category")]
