@@ -1,4 +1,5 @@
 using JobCareerPlatform.Data;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
@@ -45,15 +46,29 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
+    app.UseHttpsRedirection();
 }
 else
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+
+    // AWS Elastic Beanstalk's default single-instance environment only exposes a plain
+    // HTTP endpoint via its *.elasticbeanstalk.com domain — there is no HTTPS listener
+    // unless a custom domain with an ACM certificate is attached. Forcing a redirect to
+    // HTTPS here would break the deployed site (redirecting to a port nothing listens on),
+    // so HSTS/HTTPS redirection are left off for production. Uncomment both lines below
+    // once a custom domain + ACM certificate + HTTPS listener has been configured.
+    // app.UseHsts();
+    // app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
+// Elastic Beanstalk's load balancer sits in front of the app, so trust its
+// X-Forwarded-For / X-Forwarded-Proto headers to get the real client IP and scheme.
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
 app.UseRouting();
 
 app.UseAuthentication();
