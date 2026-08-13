@@ -1,0 +1,781 @@
+﻿@model JobCareerPlatform.Models.Admin.AdminAnalyticsReportViewModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        Analytics Report
+    </title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f6fa;
+            color: #222;
+        }
+
+        .actions {
+            width: 95%;
+            max-width: 1100px;
+            margin: 20px auto 0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .report {
+            width: 95%;
+            max-width: 1100px;
+            margin: 20px auto 40px;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+        }
+
+        .header {
+            border-bottom: 3px solid #172238;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+            .header h1 {
+                color: #172238;
+                margin: 0 0 10px;
+            }
+
+        .subtitle {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .section {
+            margin-top: 35px;
+        }
+
+            .section h2 {
+                color: #172238;
+                font-size: 21px;
+                border-bottom: 1px solid #ddd;
+                padding-bottom: 8px;
+            }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .summary-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 18px;
+        }
+
+        .summary-label {
+            color: #777;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .summary-value {
+            color: #172238;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 15px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background: #f2f3f7;
+        }
+
+        .two-columns {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
+        .empty {
+            color: #777;
+            font-style: italic;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 6px;
+            padding: 10px 18px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #172238;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #222;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #777;
+            font-size: 12px;
+        }
+
+
+        @@media (max-width: 768px) {
+
+            .summary-grid,
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+
+            .report {
+                padding: 20px;
+            }
+        }
+
+
+        @@media print {
+
+            body {
+                background: white;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .report {
+                width: 100%;
+                max-width: none;
+                margin: 0;
+                padding: 15px;
+            }
+
+            tr,
+            .summary-card {
+                break-inside: avoid;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- ACTIONS -->
+
+    <div class="actions no-print">
+
+        <a asp-controller="AdminAnalytics"
+           asp-action="Index"
+           class="btn btn-secondary">
+
+            Back to Analytics
+
+        </a>
+
+
+        <button type="button"
+                class="btn btn-primary"
+                onclick="window.print()">
+
+            Print / Save as PDF
+
+        </button>
+
+    </div>
+
+
+
+    <div class="report">
+
+
+        <!-- REPORT HEADER -->
+
+        <div class="header">
+
+            <h1>
+                Job Matching and Career Development Platform
+                Analytics Report
+            </h1>
+
+            <p class="subtitle">
+
+                Reporting Period:
+
+                <strong>
+                    @(Model.DateFrom.ToString("dd/MM/yyyy"))
+                </strong>
+
+                to
+
+                <strong>
+                    @(Model.DateTo.ToString("dd/MM/yyyy"))
+                </strong>
+
+            </p>
+
+            <p class="subtitle">
+
+                Generated:
+
+                @(Model.GeneratedAt.ToString("dd/MM/yyyy hh:mm tt"))
+
+            </p>
+
+        </div>
+
+
+
+        <!-- REPORT SUMMARY -->
+
+        <div class="section">
+
+            
+        <!-- 1. JOB MARKET TRENDS -->
+
+        <div class="section">
+
+            <h2>
+                1. Job Market Trends
+            </h2>
+
+
+            <div class="two-columns">
+
+
+                <!-- CATEGORY -->
+
+                <div>
+
+                    <h3>
+                        Public Jobs by Category
+                    </h3>
+
+                    @if (
+                                        Model.JobCategoryLabels.Any())
+                    {
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Jobs</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @for (
+                                    int i = 0;
+                                    i <
+                                    Model.JobCategoryLabels.Count;
+                                    i++)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            @Model.JobCategoryLabels[i]
+                                        </td>
+
+                                        <td>
+                                            @Model.JobCategoryCounts[i]
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+                    }
+                    else
+                    {
+                        <p class="empty">
+                            No public job postings
+                            during this period.
+                        </p>
+                    }
+
+                </div>
+
+
+                <!-- LOCATION -->
+
+                <div>
+
+                    <h3>
+                        Jobs by Location
+                    </h3>
+
+                    @if (
+                                        Model.JobLocationLabels.Any())
+                    {
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Location</th>
+                                    <th>Jobs</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @for (
+                                    int i = 0;
+                                    i <
+                                    Model.JobLocationLabels.Count;
+                                    i++)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            @Model.JobLocationLabels[i]
+                                        </td>
+
+                                        <td>
+                                            @Model.JobLocationCounts[i]
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+                    }
+                    else
+                    {
+                        <p class="empty">
+                            No location data
+                            available.
+                        </p>
+                    }
+
+                </div>
+
+            </div>
+
+
+
+            <div class="two-columns">
+
+
+                <!-- EMPLOYMENT TYPE -->
+
+                <div>
+
+                    <h3>
+                        Employment Type
+                    </h3>
+
+                    @if (
+                           Model.EmploymentTypeLabels.Any())
+                    {
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Jobs</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @for (
+                                    int i = 0;
+                                    i <
+                                    Model.EmploymentTypeLabels.Count;
+                                    i++)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            @Model.EmploymentTypeLabels[i]
+                                        </td>
+
+                                        <td>
+                                            @Model.EmploymentTypeCounts[i]
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+                    }
+                    else
+                    {
+                        <p class="empty">
+                            No employment type
+                            data available.
+                        </p>
+                    }
+
+                </div>
+
+
+                <!-- REQUIRED SKILLS -->
+
+                <div>
+
+                    <h3>
+                        Top Required Skills
+                    </h3>
+
+                    @if (
+                          Model.RequiredSkillLabels.Any())
+                    {
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Skill</th>
+                                    <th>Job Mentions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @for (
+                                        int i = 0;
+                                        i <
+                                        Model.RequiredSkillLabels.Count;
+                                        i++)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            @Model.RequiredSkillLabels[i]
+                                        </td>
+
+                                        <td>
+                                            @Model.RequiredSkillCounts[i]
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+                    }
+                    else
+                    {
+                        <p class="empty">
+                            No required skills
+                            recorded during this period.
+                        </p>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- 2. JOB SEEKER APPLICATION STATISTICS -->
+
+        <div class="section">
+
+            <h2>
+                2. Job Seeker & Application Statistics
+            </h2>
+
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Application Status</th>
+                        <th>Applications</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <tr>
+                        <td>
+                            Total Applications Submitted
+                        </td>
+
+                        <td>
+                            @Model.ApplicationsSubmitted
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td>Submitted</td>
+                        <td>
+                            @Model.SubmittedApplications
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td>Under Review</td>
+                        <td>
+                            @Model.UnderReviewApplications
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td>Shortlisted</td>
+                        <td>
+                            @Model.ShortlistedApplications
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td>Interview</td>
+                        <td>
+                            @Model.InterviewApplications
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td>Offered</td>
+                        <td>
+                            @Model.OfferedApplications
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td>Rejected</td>
+                        <td>
+                            @Model.RejectedApplications
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+
+        <!-- 3. USER ENGAGEMENT -->
+
+        <div class="section">
+
+            <h2>
+                3. User Engagement
+            </h2>
+
+
+            <p>
+
+                <strong>
+                    Active Users:
+                </strong>
+
+                @Model.ActiveUsers
+
+            </p>
+
+
+            <p>
+
+                <strong>
+                    Activities Recorded:
+                </strong>
+
+                @Model.ActivitiesRecorded
+
+            </p>
+
+
+            @if (
+                Model.ActivityRoleLabels.Any())
+            {
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>User Role</th>
+                            <th>Activities</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        @for (
+                           int i = 0;
+                           i <
+                           Model.ActivityRoleLabels.Count;
+                           i++)
+                        {
+                            <tr>
+
+                                <td>
+                                    @Model.ActivityRoleLabels[i]
+                                </td>
+
+                                <td>
+                                    @Model.ActivityRoleCounts[i]
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+            }
+            else
+            {
+                <p class="empty">
+                    No user activities were recorded
+                    during this reporting period.
+                </p>
+            }
+
+        </div>
+
+
+
+        <!-- 4. CURRENT SNAPSHOT -->
+
+        <div class="section">
+
+            <h2>
+                4. Current Platform Snapshot
+            </h2>
+
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Metric</th>
+                        <th>Current Total</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <tr>
+                        <td>
+                            Total Registered Users
+                        </td>
+                        <td>
+                            @Model.TotalUsers
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td>
+                            Total Job Seekers
+                        </td>
+                        <td>
+                            @Model.TotalJobSeekers
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td>
+                            Total Public Job Postings
+                        </td>
+                        <td>
+                            @Model.TotalPublicJobs
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td>
+                            Total Job Applications
+                        </td>
+                        <td>
+                            @Model.TotalApplications
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+
+        <!-- FOOTER -->
+
+        <div class="footer">
+
+            Job Career Platform —
+            System Generated Analytics Report
+
+        </div>
+
+
+    </div>
+
+
+</body>
+
+</html>

@@ -20,6 +20,84 @@
 
 </div>
 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="admin-panel mb-4">
+
+    <div class="mb-3">
+
+        <h5 class="fw-bold mb-1">
+            Generate Analytics Report
+        </h5>
+
+        <p class="text-muted mb-0">
+            Select a reporting period to generate
+            job market, application and engagement statistics.
+        </p>
+
+    </div>
+
+
+    <form asp-controller="AdminAnalytics"
+          asp-action="GenerateReport"
+          method="get">
+
+        <div class="row g-3 align-items-end">
+
+            <div class="col-md-4">
+
+                <label class="form-label fw-semibold">
+                    Date From
+                </label>
+
+                <input type="date"
+                       name="dateFrom"
+                       class="form-control"
+                       value="@DateTime.Today.AddDays(-29).ToString("yyyy-MM-dd")"
+                       max="@DateTime.Today.ToString("yyyy-MM-dd")"
+                       required />
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <label class="form-label fw-semibold">
+                    Date To
+                </label>
+
+                <input type="date"
+                       name="dateTo"
+                       class="form-control"
+                       value="@DateTime.Today.ToString("yyyy-MM-dd")"
+                       max="@DateTime.Today.ToString("yyyy-MM-dd")"
+                       required />
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <button type="submit"
+                        class="btn btn-primary w-100">
+
+                    Generate Report
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
 <div class="row g-4 mb-4">
 
     <div class="col-xl-3 col-md-6">

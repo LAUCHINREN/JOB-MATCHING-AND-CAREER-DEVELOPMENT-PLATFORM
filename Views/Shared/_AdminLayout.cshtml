@@ -3,6 +3,10 @@
 
 @inject UserManager<ApplicationUser> UserManager
 
+@{
+    var currentUser = await UserManager.GetUserAsync(User);
+}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -119,21 +123,23 @@
 
                 <div class="admin-profile">
 
-                    <div class="admin-avatar">
-                        A
-                    </div>
-
-                    <div>
-                        <div class="admin-profile-name">
-                            System Admin
-                        </div>
-
-                        <div class="admin-profile-role">
-                            Administrator
-                        </div>
-                    </div>
-
+                <div class="admin-avatar">
+                    @(string.IsNullOrWhiteSpace(currentUser?.FullName)
+                         ? "A"
+                         : currentUser.FullName.Substring(0, 1).ToUpper())
                 </div>
+
+                <div>
+                    <div class="admin-profile-name">
+                        @(currentUser?.FullName ?? "System Admin")
+                    </div>
+
+                    <div class="admin-profile-role">
+                        System Administrator
+                    </div>
+                </div>
+
+            </div>
 
                 <form asp-area="Identity"
                       asp-page="/Account/Logout"

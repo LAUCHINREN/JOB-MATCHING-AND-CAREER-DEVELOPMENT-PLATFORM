@@ -78,14 +78,9 @@
                     </div>
                 </div>
 
-                <div class="d-flex gap-2">
-                    <a asp-area="Identity" asp-page="/Account/Manage/Index" class="ca-logout-button text-decoration-none" style="flex:1;">
-                        <i class="bi bi-person-gear"></i> Account
-                    </a>
-                </div>
                 <form asp-area="Identity" asp-page="/Account/Logout"
                       asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
-                      method="post" class="mt-2">
+                      method="post">
                     <button type="submit" class="ca-logout-button">
                         <i class="bi bi-box-arrow-right"></i> Logout
                     </button>
