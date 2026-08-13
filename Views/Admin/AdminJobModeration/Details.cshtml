@@ -1,0 +1,362 @@
+﻿@model JobCareerPlatform.Models.JobPosting
+
+@{
+    ViewData["Title"] = "Review Job Posting";
+    Layout = "_AdminLayout";
+
+    var history =
+        ViewBag.ModerationHistory
+        as List<JobCareerPlatform.Models.Admin.JobModeration>;
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="mb-4">
+
+    <a asp-action="Index"
+       class="text-decoration-none">
+        ← Back to Job Moderation
+    </a>
+
+    <h3 class="fw-bold mt-3 mb-1">
+        Review Job Posting
+    </h3>
+
+    <p class="text-muted mb-0">
+        Review job information before approving or rejecting it.
+    </p>
+
+</div>
+
+
+<div class="row g-4">
+
+    <!-- JOB INFORMATION -->
+    <div class="col-lg-8">
+
+        <div class="admin-panel">
+
+            <div class="d-flex justify-content-between
+                        align-items-start mb-4">
+
+                <div>
+
+                    <h3 class="fw-bold mb-1">
+                        @Model.JobTitle
+                    </h3>
+
+                    <div class="text-muted">
+                        @(Model.Employer?.FullName
+                            ?? "Unknown Employer")
+                    </div>
+
+                </div>
+
+                <div>
+
+                    @if (Model.ModerationStatus == "Pending")
+                    {
+                        <span class="badge bg-warning text-dark">
+                            Pending Review
+                        </span>
+                    }
+                    else if (Model.ModerationStatus == "Approved")
+                    {
+                        <span class="badge bg-success">
+                            Approved
+                        </span>
+                    }
+                    else if (Model.ModerationStatus == "Rejected")
+                    {
+                        <span class="badge bg-danger">
+                            Rejected
+                        </span>
+                    }
+
+                </div>
+
+            </div>
+
+
+            <div class="row mb-4">
+
+                <div class="col-md-6 mb-3">
+
+                    <small class="text-muted">
+                        CATEGORY
+                    </small>
+
+                    <div class="fw-semibold mt-1">
+                        @(Model.JobCategory?.CategoryName
+                                                ?? "No Category")
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 mb-3">
+
+                    <small class="text-muted">
+                        LOCATION
+                    </small>
+
+                    <div class="fw-semibold mt-1">
+                        @Model.Location
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 mb-3">
+
+                    <small class="text-muted">
+                        EMPLOYMENT TYPE
+                    </small>
+
+                    <div class="fw-semibold mt-1">
+                        @(Model.EmploymentType ?? "Not specified")
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 mb-3">
+
+                    <small class="text-muted">
+                        SALARY
+                    </small>
+
+                    <div class="fw-semibold mt-1">
+
+                        @if (Model.SalaryMin.HasValue &&
+                                                Model.SalaryMax.HasValue)
+                        {
+                            <span>
+                                RM @Model.SalaryMin.Value.ToString("N2")
+                                -
+                                RM @Model.SalaryMax.Value.ToString("N2")
+                            </span>
+                        }
+                        else
+                        {
+                            <span>Not specified</span>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <hr />
+
+
+            <div class="mb-4">
+
+                <h5>
+                    Job Description
+                </h5>
+
+                <p class="text-muted">
+                    @Model.JobDescription
+                </p>
+
+            </div>
+
+
+            <div class="mb-4">
+
+                <h5>
+                    Required Skills
+                </h5>
+
+                <p class="text-muted">
+                    @(Model.RequiredSkills
+                        ?? "No skills specified.")
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <h5>
+                    Qualification
+                </h5>
+
+                <p class="text-muted">
+                    @(Model.Qualification
+                        ?? "No qualification specified.")
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- MODERATION ACTIONS -->
+    <div class="col-lg-4">
+
+        <div class="admin-panel mb-4">
+
+            <h5 class="mb-3">
+                Moderation Actions
+            </h5>
+
+
+            @if (Model.ModerationStatus == "Pending")
+            {
+                <!-- APPROVE -->
+
+                <form asp-action="Approve"
+                      method="post"
+                      class="mb-2">
+
+                    <input type="hidden"
+                           name="id"
+                           value="@Model.JobId" />
+
+                    <button type="submit"
+                            class="btn btn-success w-100">
+
+                        Approve Job
+
+                    </button>
+
+                </form>
+
+
+                <!-- REJECT -->
+
+                <a asp-action="Reject"
+                   asp-route-id="@Model.JobId"
+                   class="btn btn-outline-danger w-100">
+
+                    Reject Job
+
+                </a>
+            }
+            else if (Model.ModerationStatus == "Approved")
+            {
+                <div class="alert alert-success mb-0">
+
+                    <strong>Job Approved</strong>
+
+                    <div class="mt-2">
+                        This job posting has been approved and
+                        can be made available to Job Seekers.
+                    </div>
+
+                </div>
+            }
+            else if (Model.ModerationStatus == "Rejected")
+            {
+                <div class="alert alert-danger mb-0">
+
+                    <strong>Job Rejected</strong>
+
+                    <div class="mt-2">
+                        This job posting was rejected.
+                        The Employer must update and resubmit
+                        the job before another moderation review.
+                    </div>
+
+                </div>
+            }
+
+        </div>
+
+
+        <!-- SUBMITTED DATE -->
+        <div class="admin-panel">
+
+            <small class="text-muted">
+                SUBMITTED DATE
+            </small>
+
+            <div class="fw-semibold mt-1">
+
+                @(Model.CreatedAt
+                    .ToLocalTime()
+                    .ToString("dd/MM/yyyy hh:mm tt"))
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- MODERATION HISTORY -->
+@if (history != null && history.Any())
+{
+    <div class="admin-panel mt-4">
+
+        <h5 class="mb-3">
+            Moderation History
+        </h5>
+
+        <div class="table-responsive">
+
+            <table class="table">
+
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Previous</th>
+                        <th>New Status</th>
+                        <th>Reason</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var item in history)
+                    {
+                        <tr>
+
+                            <td>
+                                @(item.ModeratedAt
+                                    .ToLocalTime()
+                                    .ToString("dd/MM/yyyy hh:mm tt"))
+                                                                                     </td>
+
+                            <td>
+                                @item.PreviousStatus
+                            </td>
+
+                            <td>
+                                @item.NewStatus
+                            </td>
+
+                            <td>
+                                @(string.IsNullOrWhiteSpace(item.Reason)
+                                                        ? "-"
+                                                        : item.Reason)
+                    </td>
+
+                        </tr>
+                                }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}

@@ -1,0 +1,713 @@
+﻿@using System.Text.Json
+@model JobCareerPlatform.Models.Admin.AdminAnalyticsViewModel
+
+@{
+    ViewData["Title"] = "Analytics";
+    Layout = "_AdminLayout";
+}
+
+
+<div class="mb-4">
+
+    <h3 class="fw-bold mb-1">
+        Analytics Dashboard
+    </h3>
+
+    <p class="text-muted mb-0">
+        Monitor platform performance, job postings
+        and user engagement.
+    </p>
+
+</div>
+
+<div class="row g-4 mb-4">
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="dashboard-card stat-purple p-4">
+
+            <div class="text-muted mb-2">
+                Total Users
+            </div>
+
+            <h2 class="fw-bold mb-1">
+                @Model.TotalUsers
+            </h2>
+
+            <small class="text-muted">
+                Registered platform accounts
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="dashboard-card stat-blue p-4">
+
+            <div class="text-muted mb-2">
+                Active Users
+            </div>
+
+            <h2 class="fw-bold mb-1">
+                @Model.ActiveUsersLast7Days
+            </h2>
+
+            <small class="text-muted">
+                Active during last 7 days
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="dashboard-card stat-orange p-4">
+
+            <div class="text-muted mb-2">
+                Total Job Postings
+            </div>
+
+            <h2 class="fw-bold mb-1">
+                @Model.TotalJobs
+            </h2>
+
+            <small class="text-muted">
+                Submitted job vacancies
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="dashboard-card stat-green p-4">
+
+            <div class="text-muted mb-2">
+                Activities
+            </div>
+
+            <h2 class="fw-bold mb-1">
+                @Model.ActivitiesLast7Days
+            </h2>
+
+            <small class="text-muted">
+                Recorded during last 7 days
+            </small>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="row g-4 mb-4">
+
+    <!-- USER SUMMARY -->
+
+    <div class="col-lg-6">
+
+        <div class="admin-panel h-100">
+
+            <h5 class="fw-bold mb-4">
+                User Overview
+            </h5>
+
+
+            <div class="row g-3">
+
+                <div class="col-6">
+
+                    <div class="border rounded p-3">
+
+                        <small class="text-muted">
+                            Job Seekers
+                        </small>
+
+                        <div class="fs-4 fw-bold">
+                            @Model.JobSeekers
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-6">
+
+                    <div class="border rounded p-3">
+
+                        <small class="text-muted">
+                            Employers
+                        </small>
+
+                        <div class="fs-4 fw-bold">
+                            @Model.Employers
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-6">
+
+                    <div class="border rounded p-3">
+
+                        <small class="text-muted">
+                            Career Advisors
+                        </small>
+
+                        <div class="fs-4 fw-bold">
+                            @Model.CareerAdvisors
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-6">
+
+                    <div class="border rounded p-3">
+
+                        <small class="text-muted">
+                            System Admin
+                        </small>
+
+                        <div class="fs-4 fw-bold">
+                            @Model.SystemAdmins
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <hr class="my-4" />
+
+
+            <div class="d-flex justify-content-between mb-2">
+
+                <span>
+                    Active Accounts
+                </span>
+
+                <strong>
+                    @Model.ActiveAccounts
+                </strong>
+
+            </div>
+
+
+            <div class="d-flex justify-content-between mb-2">
+
+                <span>
+                    Suspended Accounts
+                </span>
+
+                <strong>
+                    @Model.SuspendedAccounts
+                </strong>
+
+            </div>
+
+
+            <div class="d-flex justify-content-between">
+
+                <span>
+                    Deactivated Accounts
+                </span>
+
+                <strong>
+                    @Model.DeactivatedAccounts
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- JOB MODERATION SUMMARY -->
+
+    <div class="col-lg-6">
+
+        <div class="admin-panel h-100">
+
+            <h5 class="fw-bold mb-4">
+                Job Posting Overview
+            </h5>
+
+
+            <div class="row g-3">
+
+                <div class="col-4">
+
+                    <div class="border rounded p-3 text-center">
+
+                        <div class="fs-4 fw-bold text-warning">
+                            @Model.PendingJobs
+                        </div>
+
+                        <small class="text-muted">
+                            Pending
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-4">
+
+                    <div class="border rounded p-3 text-center">
+
+                        <div class="fs-4 fw-bold text-success">
+                            @Model.ApprovedJobs
+                        </div>
+
+                        <small class="text-muted">
+                            Approved
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-4">
+
+                    <div class="border rounded p-3 text-center">
+
+                        <div class="fs-4 fw-bold text-danger">
+                            @Model.RejectedJobs
+                        </div>
+
+                        <small class="text-muted">
+                            Rejected
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <hr class="my-4" />
+
+
+            <div class="d-flex justify-content-between mb-2">
+
+                <span>
+                    Total Job Postings
+                </span>
+
+                <strong>
+                    @Model.TotalJobs
+                </strong>
+
+            </div>
+
+
+            <div class="d-flex justify-content-between mb-2">
+
+                <span>
+                    Total User Activities
+                </span>
+
+                <strong>
+                    @Model.TotalActivities
+                </strong>
+
+            </div>
+
+
+            <div class="d-flex justify-content-between">
+
+                <span>
+                    Active Users (7 Days)
+                </span>
+
+                <strong>
+                    @Model.ActiveUsersLast7Days
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="row g-4 mb-4">
+
+    <!-- JOB CATEGORY CHART -->
+
+    <div class="col-lg-6">
+
+        <div class="admin-panel h-100">
+
+            <h5 class="fw-bold">
+                Job Postings by Category
+            </h5>
+
+            <p class="text-muted small">
+                Distribution of job postings across
+                job categories.
+            </p>
+
+            @if (Model.JobCategoryLabels.Any())
+            {
+                <div style="height: 320px;">
+                    <canvas id="jobCategoryChart"></canvas>
+                </div>
+            }
+            else
+            {
+                <div class="text-center text-muted py-5">
+                    No job posting data available.
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- ACTIVITY ROLE CHART -->
+
+    <div class="col-lg-6">
+
+        <div class="admin-panel h-100">
+
+            <h5 class="fw-bold">
+                User Engagement by Role
+            </h5>
+
+            <p class="text-muted small">
+                Number of recorded activities
+                performed by each user role.
+            </p>
+
+            @if (Model.ActivityRoleLabels.Any())
+            {
+                <div style="height: 320px;">
+                    <canvas id="activityRoleChart"></canvas>
+                </div>
+            }
+            else
+            {
+                <div class="text-center text-muted py-5">
+                    No user activity data available.
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ACTIVITY TREND -->
+
+<div class="admin-panel mb-4">
+
+    <h5 class="fw-bold">
+        User Activity Trend
+    </h5>
+
+    <p class="text-muted small">
+        Platform engagement during the last 7 days.
+    </p>
+
+    <div style="height: 320px;">
+        <canvas id="activityTrendChart"></canvas>
+    </div>
+
+</div>
+
+<div class="admin-panel">
+
+    <div class="d-flex justify-content-between
+                align-items-center mb-3">
+
+        <div>
+
+            <h5 class="fw-bold mb-1">
+                Recent User Activity
+            </h5>
+
+            <small class="text-muted">
+                Latest meaningful activities
+                recorded on the platform.
+            </small>
+
+        </div>
+
+
+        <a asp-controller="AdminActivity"
+           asp-action="Index"
+           class="btn btn-sm btn-outline-primary">
+
+            View All Activities
+
+        </a>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+
+                <tr>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Activity</th>
+                    <th>Module</th>
+                    <th>Date & Time</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @if (!Model.RecentActivities.Any())
+                {
+                    <tr>
+
+                        <td colspan="5"
+                            class="text-center text-muted py-4">
+
+                            No user activities recorded yet.
+
+                        </td>
+
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var activity
+                       in Model.RecentActivities)
+                    {
+                        <tr>
+
+                            <td>
+
+                                <div class="fw-semibold">
+                                    @activity.UserName
+                                </div>
+
+                                <small class="text-muted">
+                                    @activity.UserEmail
+                                </small>
+
+                            </td>
+
+
+                            <td>
+                                @activity.UserRole
+                            </td>
+
+
+                            <td>
+                                @activity.ActivityType
+                            </td>
+
+
+                            <td>
+
+                                @(string.IsNullOrWhiteSpace(
+                                     activity.EntityType)
+                                     ? "-"
+                                     : activity.EntityType)
+
+                            </td>
+
+
+                            <td>
+
+                                @(activity.CreatedAt
+                                     .ToLocalTime()
+                                     .ToString(
+                                     "dd/MM/yyyy hh:mm tt"))
+
+                    </td>
+
+                        </tr>
+                                }
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     CHART.JS
+===================================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    const jobCategoryLabels =
+        @Html.Raw(
+            JsonSerializer.Serialize(
+                    Model.JobCategoryLabels));
+
+    const jobCategoryCounts =
+        @Html.Raw(
+           JsonSerializer.Serialize(
+               Model.JobCategoryCounts));
+
+
+    const activityRoleLabels =
+        @Html.Raw(
+            JsonSerializer.Serialize(
+               Model.ActivityRoleLabels));
+
+    const activityRoleCounts =
+        @Html.Raw(
+            JsonSerializer.Serialize(
+               Model.ActivityRoleCounts));
+
+
+    const activityDateLabels =
+        @Html.Raw(
+            JsonSerializer.Serialize(
+                Model.ActivityDateLabels));
+
+    const activityDateCounts =
+        @Html.Raw(
+            JsonSerializer.Serialize(
+                Model.ActivityDateCounts));
+
+
+    // JOB CATEGORY CHART
+    const jobCategoryCanvas =
+        document.getElementById(
+            'jobCategoryChart');
+
+    if (jobCategoryCanvas) {
+
+        new Chart(
+            jobCategoryCanvas,
+            {
+                type: 'bar',
+
+                data: {
+                    labels: jobCategoryLabels,
+
+                    datasets: [{
+                        label: 'Job Postings',
+                        data: jobCategoryCounts,
+                        borderWidth: 1
+                    }]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+    }
+
+
+    // ACTIVITY BY ROLE
+    const activityRoleCanvas =
+        document.getElementById(
+            'activityRoleChart');
+
+    if (activityRoleCanvas) {
+
+        new Chart(
+            activityRoleCanvas,
+            {
+                type: 'doughnut',
+
+                data: {
+                    labels: activityRoleLabels,
+
+                    datasets: [{
+                        data: activityRoleCounts
+                    }]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+    }
+
+
+    // ACTIVITY TREND
+    const activityTrendCanvas =
+        document.getElementById(
+            'activityTrendChart');
+
+    if (activityTrendCanvas) {
+
+        new Chart(
+            activityTrendCanvas,
+            {
+                type: 'line',
+
+                data: {
+                    labels: activityDateLabels,
+
+                    datasets: [{
+                        label: 'Activities',
+                        data: activityDateCounts,
+                        tension: 0.3,
+                        fill: false
+                    }]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+    }
+
+</script>

@@ -1,0 +1,347 @@
+﻿@model JobCareerPlatform.Models.JobApplication
+
+@{
+    Layout = "_JobSeekerLayout";
+    ViewData["Title"] = "Edit Application";
+
+    var job = ViewBag.Job as JobCareerPlatform.Models.JobPosting;
+}
+
+<div class="py-3">
+
+    <div class="edit-application-page">
+
+        <div class="mb-3">
+
+            <a asp-action="Applications"
+               class="back-link">
+
+                <i class="bi bi-arrow-left me-1"></i>
+                Back to Applications
+
+            </a>
+
+        </div>
+
+
+        <div class="row g-4">
+
+            <!-- Edit Form -->
+            <div class="col-lg-8">
+
+                <div class="card border-0 shadow-sm edit-card">
+
+                    <div class="card-body p-4 p-md-5">
+
+                        <span class="page-badge">
+                            <i class="bi bi-pencil me-1"></i>
+                            Edit Application
+                        </span>
+
+                        <h2 class="fw-bold mt-2 mb-1">
+                            Update Your Application
+                        </h2>
+
+                        <p class="text-muted mb-4">
+                            You can update your cover message while the
+                            application status is still Submitted.
+                        </p>
+
+
+                        <form asp-action="EditApplication"
+                              method="post">
+
+                            <input type="hidden"
+                                   asp-for="JobApplicationId" />
+
+                            <div asp-validation-summary="ModelOnly"
+                                 class="alert alert-danger">
+                            </div>
+
+
+                            <div class="mb-4">
+
+                                <div class="d-flex justify-content-between
+                                            align-items-center mb-2">
+
+                                    <label asp-for="CoverMessage"
+                                           class="form-label fw-semibold mb-0">
+                                        Cover Message
+                                    </label>
+
+                                    <span class="optional-badge">
+                                        Optional
+                                    </span>
+
+                                </div>
+
+
+                                <textarea asp-for="CoverMessage"
+                                          id="coverMessage"
+                                          class="form-control cover-box"
+                                          rows="8"
+                                          maxlength="1000"
+                                          placeholder="Update your cover message..."></textarea>
+
+
+                                <div class="d-flex justify-content-between mt-2">
+
+                                    <span asp-validation-for="CoverMessage"
+                                          class="text-danger small">
+                                    </span>
+
+                                    <span class="character-count">
+                                        <span id="characterCount">0</span>/1000
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-actions">
+
+                                <a asp-action="Applications"
+                                   class="btn btn-outline-secondary">
+
+                                    Cancel
+
+                                </a>
+
+                                <button type="submit"
+                                        class="btn btn-primary">
+
+                                    <i class="bi bi-check-lg me-1"></i>
+                                    Save Changes
+
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Job Info -->
+            <div class="col-lg-4">
+
+                <div class="card border-0 shadow-sm job-card">
+
+                    <div class="card-body p-4">
+
+                        <div class="text-muted small fw-semibold mb-3">
+                            APPLICATION FOR
+                        </div>
+
+                        @if (job != null)
+                        {
+                            <h5 class="fw-bold mb-1">
+                                @job.JobTitle
+                            </h5>
+
+                            <div class="text-muted mb-3">
+                                @(job.Employer?.FullName ?? "Unknown Employer")
+                            </div>
+
+                            <hr />
+
+                            <div class="job-detail">
+                                <i class="bi bi-geo-alt"></i>
+                                @job.Location
+                            </div>
+
+                            <div class="job-detail">
+                                <i class="bi bi-briefcase"></i>
+                                @job.EmploymentType
+                            </div>
+
+                            <div class="job-detail">
+                                <i class="bi bi-grid"></i>
+                                @(job.JobCategory?.CategoryName ?? "Uncategorized")
+                            </div>
+                        }
+
+                        <hr />
+
+                        <div class="status-box">
+
+                            <span class="status-label">
+                                Current Status
+                            </span>
+
+                            <span class="status-badge">
+                                @Model.Status
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+    .edit-application-page {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        color: #64748b;
+        text-decoration: none;
+        font-size: .85rem;
+        font-weight: 500;
+    }
+
+        .back-link:hover {
+            color: #2563eb;
+        }
+
+    .edit-card,
+    .job-card {
+        border-radius: 16px;
+    }
+
+    .page-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 11px;
+        border-radius: 20px;
+        background: #eaf1ff;
+        color: #2563eb;
+        font-size: .78rem;
+        font-weight: 600;
+    }
+
+    .optional-badge {
+        padding: 4px 9px;
+        border-radius: 20px;
+        background: #f1f5f9;
+        color: #64748b;
+        font-size: .7rem;
+        font-weight: 600;
+    }
+
+    .cover-box {
+        border-radius: 12px;
+        border-color: #e2e8f0;
+        line-height: 1.65;
+        resize: vertical;
+    }
+
+        .cover-box:focus {
+            border-color: #93b4fa;
+            box-shadow: 0 0 0 .18rem rgba(37,99,235,.10);
+        }
+
+    .character-count {
+        color: #94a3b8;
+        font-size: .75rem;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding-top: 22px;
+        border-top: 1px solid #edf0f4;
+    }
+
+        .form-actions .btn {
+            border-radius: 9px;
+            padding: 9px 17px;
+            font-weight: 600;
+            font-size: .88rem;
+        }
+
+    .job-detail {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #64748b;
+        font-size: .84rem;
+        margin-bottom: 10px;
+    }
+
+    .status-box {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .status-label {
+        color: #64748b;
+        font-size: .8rem;
+    }
+
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        background: #eef4ff;
+        color: #2563eb;
+        font-size: .75rem;
+        font-weight: 600;
+    }
+
+    @@media (max-width: 767px) {
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+            .form-actions .btn {
+                width: 100%;
+            }
+    }
+
+</style>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        const coverMessage =
+            document.getElementById("coverMessage");
+
+        const characterCount =
+            document.getElementById("characterCount");
+
+        function updateCharacterCount() {
+
+            if (coverMessage && characterCount) {
+                characterCount.textContent =
+                    coverMessage.value.length;
+            }
+        }
+
+        if (coverMessage) {
+
+            coverMessage.addEventListener(
+                "input",
+                updateCharacterCount
+            );
+
+            updateCharacterCount();
+        }
+
+    </script>
+
+}

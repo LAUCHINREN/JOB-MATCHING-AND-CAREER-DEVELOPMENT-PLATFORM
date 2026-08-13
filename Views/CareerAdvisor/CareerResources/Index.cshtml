@@ -1,0 +1,85 @@
+@model List<CareerResource>
+@{
+    ViewData["Title"] = "Career Resources";
+}
+
+<div class="d-flex justify-content-between align-items-center bg-white rounded-4 shadow-sm p-3 mb-4">
+    <h4 class="mb-0">Career Resources</h4>
+    <a asp-action="Create" class="btn btn-primary rounded-pill px-4">+ Publish a Resource</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-light border text-center text-muted rounded-4">
+        You haven't created any career resources yet.
+    </div>
+}
+else
+{
+    <div class="card border-0 rounded-4 shadow-sm">
+        <div class="card-body p-0">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-3">Title</th>
+                        <th>Type</th>
+                        <th>Matching Tags</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var resource in Model)
+                    {
+                        <tr>
+                            <td class="ps-3">
+                                @resource.Title
+                                @if (!string.IsNullOrWhiteSpace(resource.ContentUrl))
+                                {
+                                    <a href="@resource.ContentUrl" target="_blank" rel="noopener noreferrer" class="ms-1 small">(link)</a>
+                                }
+                            </td>
+                            <td><span class="badge rounded-pill bg-primary-subtle text-primary-emphasis">@resource.ResourceType</span></td>
+                            <td>
+                                @if (string.IsNullOrWhiteSpace(resource.RelatedCategory) && string.IsNullOrWhiteSpace(resource.RelatedSkill))
+                                {
+                                    <span class="text-muted small">No tags — won't be auto-matched</span>
+                                }
+                                else
+                                {
+                                    @if (!string.IsNullOrWhiteSpace(resource.RelatedCategory))
+                                    {
+                                        <span class="badge rounded-pill bg-light text-dark border me-1">@resource.RelatedCategory</span>
+                                    }
+                                    @foreach (var tag in ResourceMatcher.SplitTags(resource.RelatedSkill))
+                                    {
+                                        <span class="badge rounded-pill bg-light text-dark border me-1">@tag</span>
+                                    }
+                                }
+                            </td>
+                            <td>
+                                @if (resource.IsPublished)
+                                {
+                                    <span class="badge bg-success-subtle text-success-emphasis">Published</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary-emphasis">Draft</span>
+                                }
+                            </td>
+                            <td>@resource.CreatedAt.ToString("d MMM yyyy")</td>
+                            <td class="text-end pe-3">
+                                <a asp-action="Edit" asp-route-id="@resource.CareerResourceId" class="btn btn-outline-secondary btn-sm rounded-pill">Edit</a>
+                                <form asp-action="Delete" asp-route-id="@resource.CareerResourceId" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill" onclick="return confirm('Delete this resource?');">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

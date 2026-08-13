@@ -1,0 +1,211 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_AdminLayout";
+}
+
+<div class="welcome-card">
+
+    <h2>Welcome back, Administrator</h2>
+
+    <p>
+        Here's an overview of the JobCareerPlatform today.
+        Manage users, job opportunities and platform activity
+        from one central workspace.
+    </p>
+
+</div>
+
+
+<!-- Statistics -->
+
+<div class="row g-4 mb-4">
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="dashboard-card stat-purple h-100">
+
+            <div class="card-body">
+
+                <div class="stat-label">
+                    TOTAL USERS
+                </div>
+
+                <div class="stat-number">
+                    @ViewBag.TotalUsers
+                </div>
+
+                <small class="text-muted">
+                    Registered users
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="dashboard-card stat-blue h-100">
+
+            <div class="card-body">
+
+                <div class="stat-label">
+                    JOB POSTINGS
+                </div>
+
+                <div class="stat-number">
+                    @ViewBag.JobPostingCount
+                </div>
+
+                <small class="text-muted">
+                    Available vacancies
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="dashboard-card stat-orange h-100">
+
+            <div class="card-body">
+
+                <div class="stat-label">
+                    PENDING MODERATION
+                </div>
+
+                <div class="stat-number">
+                    @ViewBag.PendingModerationCount
+                </div>
+
+                <small class="text-muted">
+                    Jobs requiring review
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="dashboard-card stat-green h-100">
+
+            <div class="card-body">
+
+                <div class="stat-label">
+                    APPLICATIONS
+                </div>
+
+                <div class="stat-number">
+                    @ViewBag.ApplicationCount
+                </div>
+
+                <small class="text-muted">
+                    Applications submitted
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Quick Management -->
+
+<div class="row g-4">
+
+    <div class="col-lg-7">
+
+        <div class="admin-panel h-100">
+
+            <div class="admin-panel-title mb-3">
+                Platform Management
+            </div>
+
+            <p class="text-muted">
+                Manage users, job categories and job posting
+                moderation from the administration portal.
+            </p>
+
+            <div class="row g-3 mt-2">
+
+                <div class="col-md-6">
+
+                    <a asp-controller="AdminUsers"
+                       asp-action="Index"
+                       class="btn btn-primary w-100 py-3">
+
+                        Manage Users
+
+                    </a>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <a asp-controller="AdminJobCategories"
+                       asp-action="Index"
+                       class="btn btn-outline-primary w-100 py-3">
+
+                        Job Categories
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-lg-5">
+
+        <div class="admin-panel h-100">
+
+            <div class="admin-panel-title mb-3">
+                Administration
+            </div>
+
+            <div class="mb-3">
+
+                <strong>System Status</strong>
+
+                <div class="text-success mt-1">
+                    ● Platform Operational
+                </div>
+
+            </div>
+
+            <hr />
+
+            <div>
+
+                <small class="text-muted">
+                    Logged in as
+                </small>
+
+                <div class="fw-semibold">
+                    @User.Identity?.Name
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

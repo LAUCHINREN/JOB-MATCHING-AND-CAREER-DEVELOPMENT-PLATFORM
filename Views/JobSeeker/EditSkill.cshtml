@@ -1,0 +1,95 @@
+﻿@model JobCareerPlatform.Models.JobSeekerSkill
+
+@{
+    Layout = "_JobSeekerLayout";
+    ViewData["Title"] = "Edit Skill";
+}
+
+<div class="py-4">
+    <div class="mx-auto" style="max-width: 700px;">
+
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4 p-md-5">
+
+                <div class="mb-4">
+                    <span class="badge bg-primary-subtle text-primary mb-2">
+                        Career Profile
+                    </span>
+
+                    <h3 class="fw-bold mb-1">Edit Skill</h3>
+
+                    <p class="text-muted mb-0">
+                        Update the selected skill and proficiency level.
+                    </p>
+                </div>
+
+                <form asp-action="EditSkill" method="post">
+
+                    <input type="hidden"
+                           asp-for="JobSeekerSkillId" />
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger">
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="SkillName"
+                               class="form-label fw-semibold">
+                        </label>
+
+                        <input asp-for="SkillName"
+                               class="form-control form-control-lg"
+                               placeholder="e.g. C#, SQL Server, AWS" />
+
+                        <span asp-validation-for="SkillName"
+                              class="text-danger small">
+                        </span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="ProficiencyLevel"
+                               class="form-label fw-semibold">
+                        </label>
+
+                        <select asp-for="ProficiencyLevel"
+                                class="form-select form-select-lg">
+
+                            <option value="">Select proficiency level</option>
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                            <option value="Expert">Expert</option>
+
+                        </select>
+
+                        <span asp-validation-for="ProficiencyLevel"
+                              class="text-danger small">
+                        </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between pt-3 border-top">
+
+                        <a asp-action="Profile"
+                           class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-primary px-4">
+                            <i class="bi bi-check-lg me-1"></i>
+                            Save Changes
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

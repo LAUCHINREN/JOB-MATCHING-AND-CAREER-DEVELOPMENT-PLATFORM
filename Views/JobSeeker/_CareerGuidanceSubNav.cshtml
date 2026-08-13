@@ -1,0 +1,21 @@
+@{
+    string currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+}
+
+<ul class="nav nav-pills mb-4">
+    <li class="nav-item">
+        <a class="nav-link rounded-pill @(currentAction == "CareerResources" ? "active" : "")" asp-controller="JobSeeker" asp-action="CareerResources">
+            <i class="bi bi-journal-bookmark me-1"></i> Resources
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link rounded-pill @(currentAction == "MyRecommendations" ? "active" : "")" asp-controller="JobSeeker" asp-action="MyRecommendations">
+            <i class="bi bi-stars me-1"></i> Recommended For You
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link rounded-pill @(currentAction == "MyCounsellingSessions" || currentAction == "RequestCounsellingSession" ? "active" : "")" asp-controller="JobSeeker" asp-action="MyCounsellingSessions">
+            <i class="bi bi-calendar2-week me-1"></i> Counselling Sessions
+        </a>
+    </li>
+</ul>

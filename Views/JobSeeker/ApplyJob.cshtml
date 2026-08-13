@@ -1,0 +1,550 @@
+﻿@model JobCareerPlatform.Models.JobApplication
+
+@{
+    Layout = "_JobSeekerLayout";
+    ViewData["Title"] = "Apply for Job";
+
+    var job = ViewBag.Job as JobCareerPlatform.Models.JobPosting;
+}
+
+<div class="py-3">
+
+    <div class="apply-page">
+
+        <!-- Back -->
+        <div class="mb-3">
+            <a asp-action="JobDetails"
+               asp-route-id="@Model.JobId"
+               class="back-link">
+
+                <i class="bi bi-arrow-left me-1"></i>
+                Back to Job Details
+
+            </a>
+        </div>
+
+
+        <div class="row g-4">
+
+            <!-- LEFT: APPLICATION FORM -->
+            <div class="col-lg-8">
+
+                <div class="card border-0 shadow-sm apply-card">
+
+                    <div class="card-body p-4 p-md-5">
+
+                        <div class="mb-4">
+
+                            <span class="page-badge">
+                                <i class="bi bi-send me-1"></i>
+                                Job Application
+                            </span>
+
+                            <h2 class="fw-bold mt-2 mb-1">
+                                Submit Your Application
+                            </h2>
+
+                            <p class="text-muted mb-0">
+                                Add an optional cover message before submitting your application.
+                            </p>
+
+                        </div>
+
+
+                        <form asp-action="ApplyJob" method="post">
+
+                            <input type="hidden"
+                                   asp-for="JobId" />
+
+
+                            <div asp-validation-summary="ModelOnly"
+                                 class="alert alert-danger"
+                                 role="alert">
+                            </div>
+
+
+                            <!-- Cover Message -->
+                            <div class="mb-4">
+
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+
+                                    <label asp-for="CoverMessage"
+                                           class="form-label fw-semibold mb-0">
+                                        Cover Message
+                                    </label>
+
+                                    <span class="optional-badge">
+                                        Optional
+                                    </span>
+
+                                </div>
+
+                                <textarea asp-for="CoverMessage"
+                                          id="coverMessage"
+                                          class="form-control cover-message-box"
+                                          rows="8"
+                                          maxlength="1000"
+                                          placeholder="Briefly introduce yourself and explain why you are interested in this position..."></textarea>
+
+                                <div class="d-flex justify-content-between mt-2">
+
+                                    <span asp-validation-for="CoverMessage"
+                                          class="text-danger small">
+                                    </span>
+
+                                    <span class="character-count">
+                                        <span id="characterCount">0</span>/1000
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Tip -->
+                            <div class="application-tip">
+
+                                <div class="tip-icon">
+                                    <i class="bi bi-lightbulb"></i>
+                                </div>
+
+                                <div>
+                                    <div class="fw-semibold small">
+                                        Writing Tip
+                                    </div>
+
+                                    <div class="text-muted small">
+                                        Mention relevant skills and briefly explain why you are interested in this role.
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <!-- Buttons -->
+                            <div class="form-actions">
+
+                                <a asp-action="JobDetails"
+                                   asp-route-id="@Model.JobId"
+                                   class="btn btn-outline-secondary">
+
+                                    Cancel
+
+                                </a>
+
+                                <button type="submit"
+                                        class="btn btn-primary submit-button">
+
+                                    <i class="bi bi-send me-1"></i>
+                                    Submit Application
+
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- RIGHT: JOB SUMMARY -->
+            <div class="col-lg-4">
+
+                <div class="card border-0 shadow-sm summary-card">
+
+                    <div class="card-body p-4">
+
+                        <div class="summary-label-title">
+                            Applying For
+                        </div>
+
+
+                        @if (job != null)
+                        {
+                            <div class="d-flex align-items-center gap-3 mb-3">
+
+                                <div class="company-icon">
+                                    <i class="bi bi-building"></i>
+                                </div>
+
+                                <div>
+                                    <h5 class="fw-bold mb-1">
+                                        @job.JobTitle
+                                    </h5>
+
+                                    <div class="text-muted small">
+                                        @(job.Employer?.FullName ?? "Unknown Employer")
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <hr />
+
+
+                            <div class="detail-item">
+
+                                <div class="detail-icon">
+                                    <i class="bi bi-geo-alt"></i>
+                                </div>
+
+                                <div>
+                                    <span class="detail-label">
+                                        Location
+                                    </span>
+
+                                    <div class="detail-value">
+                                        @job.Location
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <div class="detail-item">
+
+                                <div class="detail-icon">
+                                    <i class="bi bi-briefcase"></i>
+                                </div>
+
+                                <div>
+                                    <span class="detail-label">
+                                        Employment Type
+                                    </span>
+
+                                    <div class="detail-value">
+                                        @(string.IsNullOrWhiteSpace(job.EmploymentType)
+                                                                            ? "Not specified"
+                                                                            : job.EmploymentType)
+                                </div>
+                            </div>
+
+                            </div>
+
+
+                            <div class="detail-item">
+
+                                <div class="detail-icon">
+                                    <i class="bi bi-grid"></i>
+                                </div>
+
+                                <div>
+                                    <span class="detail-label">
+                                        Category
+                                    </span>
+
+                                    <div class="detail-value">
+                                        @(job.JobCategory?.CategoryName ?? "Uncategorized")
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <div class="detail-item">
+
+                                <div class="detail-icon">
+                                    <i class="bi bi-cash-stack"></i>
+                                </div>
+
+                                <div>
+                                    <span class="detail-label">
+                                        Salary
+                                    </span>
+
+                                    <div class="detail-value salary-value">
+
+                                    @if (job.SalaryMin.HasValue &&
+                                                                        job.SalaryMax.HasValue)
+                                        {
+                                            <span>
+                                                RM @job.SalaryMin.Value.ToString("N0")
+                                                –
+                                                RM @job.SalaryMax.Value.ToString("N0")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span>Not specified</span>
+                                        }
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            @if (!string.IsNullOrWhiteSpace(job.RequiredSkills))
+                            {
+                                <hr />
+
+                                <div class="detail-label mb-2">
+                                    Required Skills
+                                </div>
+
+                                <div class="skill-tags">
+
+                                    @foreach (var skill in job.RequiredSkills.Split(','))
+                                    {
+                                        <span class="skill-tag">
+                                            @skill.Trim()
+                                        </span>
+                                    }
+
+                                </div>
+                            }
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+    .apply-page {
+        width: 100%;
+        max-width: 1250px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        color: #64748b;
+        text-decoration: none;
+        font-size: .85rem;
+        font-weight: 500;
+    }
+
+        .back-link:hover {
+            color: #2563eb;
+        }
+
+    .apply-card,
+    .summary-card {
+        border-radius: 16px;
+    }
+
+    .page-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 11px;
+        border-radius: 20px;
+        background: #eaf1ff;
+        color: #2563eb;
+        font-size: .78rem;
+        font-weight: 600;
+    }
+
+    .optional-badge {
+        padding: 4px 9px;
+        border-radius: 20px;
+        background: #f1f5f9;
+        color: #64748b;
+        font-size: .7rem;
+        font-weight: 600;
+    }
+
+    .cover-message-box {
+        border-radius: 12px;
+        border-color: #e2e8f0;
+        resize: vertical;
+        line-height: 1.6;
+    }
+
+        .cover-message-box:focus {
+            border-color: #93b4fa;
+            box-shadow: 0 0 0 .18rem rgba(37, 99, 235, .10);
+        }
+
+    .character-count {
+        color: #94a3b8;
+        font-size: .75rem;
+    }
+
+    .application-tip {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px;
+        border-radius: 11px;
+        background: #f8fafc;
+        border: 1px solid #edf0f4;
+    }
+
+    .tip-icon {
+        width: 38px;
+        height: 38px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #fff7ed;
+        color: #ea580c;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 28px;
+        padding-top: 22px;
+        border-top: 1px solid #edf0f4;
+    }
+
+        .form-actions .btn {
+            border-radius: 9px;
+            padding: 9px 17px;
+            font-size: .88rem;
+            font-weight: 600;
+        }
+
+    .submit-button {
+        min-width: 180px;
+    }
+
+    .summary-card {
+        position: sticky;
+        top: 85px;
+    }
+
+    .summary-label-title {
+        margin-bottom: 18px;
+        color: #94a3b8;
+        font-size: .72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+    }
+
+    .company-icon {
+        width: 46px;
+        height: 46px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #eef4ff;
+        color: #2563eb;
+        font-size: 18px;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 9px 0;
+    }
+
+    .detail-icon {
+        width: 36px;
+        height: 36px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        background: #f8fafc;
+        color: #64748b;
+    }
+
+    .detail-label {
+        display: block;
+        color: #94a3b8;
+        font-size: .7rem;
+        font-weight: 600;
+    }
+
+    .detail-value {
+        color: #334155;
+        font-size: .83rem;
+        font-weight: 600;
+    }
+
+    .salary-value {
+        color: #2563eb;
+    }
+
+    .skill-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .skill-tag {
+        padding: 5px 9px;
+        border-radius: 20px;
+        background: #eef4ff;
+        color: #2563eb;
+        font-size: .72rem;
+        font-weight: 600;
+    }
+
+    @@media (max-width: 991px) {
+
+        .summary-card {
+            position: static;
+        }
+    }
+
+    @@media (max-width: 767px) {
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+            .form-actions .btn {
+                width: 100%;
+            }
+    }
+
+</style>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        const coverMessage =
+            document.getElementById("coverMessage");
+
+        const characterCount =
+            document.getElementById("characterCount");
+
+        function updateCharacterCount() {
+
+            if (coverMessage && characterCount) {
+                characterCount.textContent =
+                    coverMessage.value.length;
+            }
+
+        }
+
+        if (coverMessage) {
+
+            coverMessage.addEventListener(
+                "input",
+                updateCharacterCount
+            );
+
+            updateCharacterCount();
+        }
+
+    </script>
+}

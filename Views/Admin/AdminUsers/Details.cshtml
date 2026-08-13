@@ -1,0 +1,214 @@
+﻿@model JobCareerPlatform.Data.ApplicationUser
+
+@{
+    ViewData["Title"] = "User Details";
+    Layout = "_AdminLayout";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+
+    <div>
+
+        <a asp-action="Index"
+           class="text-decoration-none">
+            ← Back to User Management
+        </a>
+
+        <h3 class="fw-bold mt-3 mb-1">
+            User Details
+        </h3>
+
+        <p class="text-muted mb-0">
+            View and manage this platform account.
+        </p>
+
+    </div>
+
+    <a asp-action="Edit"
+       asp-route-id="@Model.Id"
+       class="btn btn-primary">
+        Edit User
+    </a>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-lg-8">
+
+        <div class="admin-panel">
+
+            <div class="d-flex align-items-center mb-4">
+
+                <div class="admin-avatar me-3"
+                     style="width:60px;
+                            height:60px;
+                            font-size:20px;">
+
+                    @Model.FullName.FirstOrDefault()
+
+                </div>
+
+                <div>
+
+                    <h4 class="mb-1">
+                        @Model.FullName
+                    </h4>
+
+                    <div class="text-muted">
+                        @Model.Email
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="row">
+
+                <div class="col-md-6 mb-4">
+
+                    <small class="text-muted">
+                        USER ROLE
+                    </small>
+
+                    <div class="fw-semibold mt-1">
+                        @Model.UserRole
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 mb-4">
+
+                    <small class="text-muted">
+                        ACCOUNT STATUS
+                    </small>
+
+                    <div class="mt-1">
+
+                        @if (Model.AccountStatus == "Active")
+                        {
+                            <span class="badge bg-success">
+                                Active
+                            </span>
+                        }
+                        else if (Model.AccountStatus == "Suspended")
+                        {
+                            <span class="badge bg-warning text-dark">
+                                Suspended
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">
+                                Deactivated
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 mb-4">
+
+                    <small class="text-muted">
+                        REGISTERED DATE
+                    </small>
+
+                    <div class="fw-semibold mt-1">
+
+                        @(Model.CreatedAt
+                           .ToLocalTime()
+                           .ToString("dd MMM yyyy, hh:mm tt"))
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 mb-4">
+
+                    <small class="text-muted">
+                        EMAIL CONFIRMED
+                    </small>
+
+                    <div class="fw-semibold mt-1">
+                        @(Model.EmailConfirmed ? "Yes" : "No")
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-4">
+
+        <div class="admin-panel">
+
+            <h5 class="mb-3">
+                Account Actions
+            </h5>
+
+
+            @if (Model.AccountStatus == "Active")
+            {
+                <a asp-action="Suspend"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-warning w-100 mb-2">
+
+                    Suspend Account
+
+                </a>
+
+
+                <!-- Deactivate Account -->
+                <a asp-action="Delete"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-outline-danger w-100">
+
+                    Deactivate Account
+
+                </a>
+            }
+            else
+            {
+                <!-- Suspended or Deactivated users can be reactivated -->
+
+                <form asp-action="Reactivate"
+                      method="post">
+
+                    <input type="hidden"
+                           name="id"
+                           value="@Model.Id" />
+
+                    <button type="submit"
+                            class="btn btn-success w-100">
+
+                        Reactivate Account
+
+                    </button>
+
+                </form>
+            }
+
+        </div>
+
+    </div>
+
+</div>

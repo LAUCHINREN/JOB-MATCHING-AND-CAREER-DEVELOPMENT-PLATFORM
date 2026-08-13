@@ -1,0 +1,134 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model CompanyProfileInput
+@{
+    ViewData["Title"] = "Create Company Profile";
+}
+
+<div class="bg-light rounded-4 p-4">
+    <div class="d-flex justify-content-between align-items-center bg-white rounded-4 shadow-sm p-3 mb-4">
+        <h4 class="mb-0">Create Company Profile</h4>
+    </div>
+
+    <div class="card border-0 rounded-4 shadow-sm">
+        <div class="card-body p-4">
+            <form asp-action="AddData" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-floating mb-3">
+                    <input asp-for="CompanyName" class="form-control rounded-3" />
+                    <label asp-for="CompanyName"></label>
+                    <span asp-validation-for="CompanyName" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Industry" class="form-control rounded-3" />
+                    <label asp-for="Industry"></label>
+                    <span asp-validation-for="Industry" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="CompanySize" class="form-control rounded-3" />
+                    <label asp-for="CompanySize"></label>
+                    <span asp-validation-for="CompanySize" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Website" class="form-control rounded-3" />
+                    <label asp-for="Website"></label>
+                    <span asp-validation-for="Website" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <textarea asp-for="Description" class="form-control rounded-3" style="height: 120px"></textarea>
+                    <label asp-for="Description"></label>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Address" class="form-control rounded-3" />
+                    <label asp-for="Address"></label>
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="ContactEmail" class="form-control rounded-3" />
+                    <label asp-for="ContactEmail"></label>
+                    <span asp-validation-for="ContactEmail" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="ContactNumber" class="form-control rounded-3" />
+                    <label asp-for="ContactNumber"></label>
+                    <span asp-validation-for="ContactNumber" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="LogoFile" class="form-label"></label>
+                    <input asp-for="LogoFile" type="file" class="form-control rounded-3" accept="image/*" />
+                </div>
+                <button type="submit" class="btn btn-primary rounded-pill px-4">Save</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+@* @model CompanyProfileInput
+@{
+    ViewData["Title"] = "Create Company Profile";
+}
+<h1>Create Company Profile</h1>
+<form asp-action="AddData" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-floating mb-3">
+        <input asp-for="CompanyName" class="form-control" />
+        <label asp-for="CompanyName"></label>
+        <span asp-validation-for="CompanyName" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input asp-for="Industry" class="form-control" />
+        <label asp-for="Industry"></label>
+        <span asp-validation-for="Industry" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input asp-for="CompanySize" class="form-control" />
+        <label asp-for="CompanySize"></label>
+        <span asp-validation-for="CompanySize" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input asp-for="Website" class="form-control" />
+        <label asp-for="Website"></label>
+        <span asp-validation-for="Website" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <textarea asp-for="Description" class="form-control" style="height: 120px"></textarea>
+        <label asp-for="Description"></label>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input asp-for="Address" class="form-control" />
+        <label asp-for="Address"></label>
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input asp-for="ContactEmail" class="form-control" />
+        <label asp-for="ContactEmail"></label>
+        <span asp-validation-for="ContactEmail" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input asp-for="ContactNumber" class="form-control" />
+        <label asp-for="ContactNumber"></label>
+        <span asp-validation-for="ContactNumber" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="LogoFile" class="form-label"></label>
+        <input asp-for="LogoFile" type="file" class="form-control" accept="image/*" />
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+} *@

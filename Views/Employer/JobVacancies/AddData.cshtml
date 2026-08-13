@@ -1,0 +1,77 @@
+﻿@model JobVacancyInput
+
+@{
+    ViewData["Title"] = "Create Job Post";
+}
+
+<h1>Create Job Post</h1>
+
+<form asp-action="AddData" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-floating mb-3">
+        <input asp-for="JobTitle" class="form-control" />
+        <label asp-for="JobTitle"></label>
+        <span asp-validation-for="JobTitle" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="JobCategoryId" class="form-label"></label>
+        <select asp-for="JobCategoryId" asp-items="ViewBag.Categories" class="form-control">
+            <option value="">-- Select Category --</option>
+        </select>
+        <span asp-validation-for="JobCategoryId" class="text-danger"></span>
+    </div>
+
+    <div class="form-floating mb-3">
+        <textarea asp-for="Description" class="form-control" style="height: 120px"></textarea>
+        <label asp-for="Description"></label>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-floating mb-3">
+        <input asp-for="RequiredSkills" class="form-control" />
+        <label asp-for="RequiredSkills"></label>
+        <span asp-validation-for="RequiredSkills" class="text-danger"></span>
+    </div>
+
+    <div class="form-floating mb-3">
+        <input asp-for="Qualification" class="form-control" />
+        <label asp-for="Qualification"></label>
+        <span asp-validation-for="Qualification" class="text-danger"></span>
+    </div>
+
+    <div class="form-floating mb-3">
+        <input asp-for="EmploymentType" class="form-control" />
+        <label asp-for="EmploymentType"></label>
+        <span asp-validation-for="EmploymentType" class="text-danger"></span>
+    </div>
+
+    <div class="form-floating mb-3">
+        <input asp-for="Location" class="form-control" />
+        <label asp-for="Location"></label>
+        <span asp-validation-for="Location" class="text-danger"></span>
+    </div>
+
+    <div class="row">
+        <div class="col form-floating mb-3">
+            <input asp-for="SalaryMin" class="form-control" />
+            <label asp-for="SalaryMin"></label>
+            <span asp-validation-for="SalaryMin" class="text-danger"></span>
+        </div>
+        <div class="col form-floating mb-3">
+            <input asp-for="SalaryMax" class="form-control" />
+            <label asp-for="SalaryMax"></label>
+            <span asp-validation-for="SalaryMax" class="text-danger"></span>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit for Approval</button>
+    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

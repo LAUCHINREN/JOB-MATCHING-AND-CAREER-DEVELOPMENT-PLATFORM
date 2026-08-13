@@ -1,0 +1,387 @@
+﻿@model JobCareerPlatform.Models.TakeAssessmentViewModel
+
+@{
+    Layout = "_JobSeekerLayout";
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="py-3">
+
+    <div class="assessment-test-page">
+
+        <div class="mb-3">
+
+            <a asp-action="Assessments"
+               class="back-link">
+
+                <i class="bi bi-arrow-left me-1"></i>
+                Back to Assessments
+
+            </a>
+
+        </div>
+
+
+        <div class="assessment-header-card mb-4">
+
+            <div>
+
+                <span class="page-badge">
+                    <i class="bi bi-clipboard-check me-1"></i>
+                    @Model.SkillName Assessment
+                </span>
+
+                <h2 class="fw-bold mt-2 mb-1">
+                    @Model.Title
+                </h2>
+
+                <p class="text-muted mb-0">
+                    Answer all questions and submit when you are ready.
+                </p>
+
+            </div>
+
+
+            <div class="assessment-info">
+
+                <div>
+                    <i class="bi bi-clock me-1"></i>
+                    @Model.DurationMinutes min
+                </div>
+
+                <div>
+                    <i class="bi bi-bullseye me-1"></i>
+                    @Model.PassingScore% to pass
+                </div>
+
+                <div>
+                    <i class="bi bi-list-check me-1"></i>
+                    @Model.Questions.Count questions
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <form asp-action="SubmitAssessment"
+              method="post">
+
+            <input type="hidden"
+                   asp-for="SkillAssessmentId" />
+
+
+            @for (int i = 0;
+                        i < Model.Questions.Count;
+                        i++)
+            {
+                <input type="hidden"
+                       asp-for="Questions[i].AssessmentQuestionId" />
+
+
+                <div class="question-card mb-4">
+
+                    <div class="question-number">
+                        Question @(i + 1)
+                    </div>
+
+
+                    <h5 class="question-text">
+                        @Model.Questions[i].QuestionText
+                    </h5>
+
+
+                    <div class="answer-options">
+
+                        <!-- A -->
+                        <label class="answer-option">
+
+                            <input type="radio"
+                                   asp-for="Questions[i].SelectedAnswer"
+                                   value="A" />
+
+                            <span class="option-letter">
+                                A
+                            </span>
+
+                            <span>
+                                @Model.Questions[i].OptionA
+                            </span>
+
+                        </label>
+
+
+                        <!-- B -->
+                        <label class="answer-option">
+
+                            <input type="radio"
+                                   asp-for="Questions[i].SelectedAnswer"
+                                   value="B" />
+
+                            <span class="option-letter">
+                                B
+                            </span>
+
+                            <span>
+                                @Model.Questions[i].OptionB
+                            </span>
+
+                        </label>
+
+
+                        <!-- C -->
+                        <label class="answer-option">
+
+                            <input type="radio"
+                                   asp-for="Questions[i].SelectedAnswer"
+                                   value="C" />
+
+                            <span class="option-letter">
+                                C
+                            </span>
+
+                            <span>
+                                @Model.Questions[i].OptionC
+                            </span>
+
+                        </label>
+
+
+                        <!-- D -->
+                        <label class="answer-option">
+
+                            <input type="radio"
+                                   asp-for="Questions[i].SelectedAnswer"
+                                   value="D" />
+
+                            <span class="option-letter">
+                                D
+                            </span>
+
+                            <span>
+                                @Model.Questions[i].OptionD
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                </div>
+            }
+
+
+            <div class="submit-card">
+
+                <div>
+                    <h6 class="fw-bold mb-1">
+                        Ready to submit?
+                    </h6>
+
+                    <p class="text-muted small mb-0">
+                        Make sure you have reviewed your answers.
+                    </p>
+                </div>
+
+
+                <button type="submit"
+                        class="btn btn-primary submit-button">
+
+                    <i class="bi bi-check-circle me-1"></i>
+                    Submit Assessment
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<style>
+
+    .assessment-test-page {
+        width: 100%;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+
+    .back-link {
+        color: #64748b;
+        text-decoration: none;
+        font-size: .85rem;
+        font-weight: 500;
+    }
+
+
+        .back-link:hover {
+            color: #2563eb;
+        }
+
+
+    .assessment-header-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 20px;
+        padding: 24px;
+        background: white;
+        border: 1px solid #edf0f4;
+        border-radius: 16px;
+        box-shadow: 0 3px 12px rgba(15,23,42,.03);
+    }
+
+
+    .page-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 11px;
+        border-radius: 20px;
+        background: #eef4ff;
+        color: #2563eb;
+        font-size: .75rem;
+        font-weight: 600;
+    }
+
+
+    .assessment-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        color: #64748b;
+        font-size: .78rem;
+    }
+
+
+        .assessment-info div {
+            padding: 6px 10px;
+            border-radius: 20px;
+            background: #f8fafc;
+            border: 1px solid #edf0f4;
+        }
+
+
+    .question-card {
+        padding: 24px;
+        background: white;
+        border: 1px solid #e8edf3;
+        border-radius: 16px;
+    }
+
+
+    .question-number {
+        margin-bottom: 8px;
+        color: #2563eb;
+        font-size: .75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+
+    .question-text {
+        color: #1e293b;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+
+    .answer-options {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+
+    .answer-option {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 11px;
+        background: #ffffff;
+        cursor: pointer;
+        transition: .2s ease;
+    }
+
+
+        .answer-option:hover {
+            border-color: #93b4fa;
+            background: #f8fbff;
+        }
+
+
+        .answer-option input {
+            margin: 0;
+        }
+
+
+    .option-letter {
+        width: 30px;
+        height: 30px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: #eef4ff;
+        color: #2563eb;
+        font-size: .75rem;
+        font-weight: 700;
+    }
+
+
+    .submit-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 20px;
+        background: white;
+        border: 1px solid #edf0f4;
+        border-radius: 14px;
+    }
+
+
+    .submit-button {
+        min-width: 180px;
+        padding: 10px 18px;
+        border-radius: 9px;
+        font-size: .85rem;
+        font-weight: 600;
+    }
+
+
+    @@media (max-width: 767px) {
+
+        .assessment-header-card {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+
+        .assessment-info {
+            width: 100%;
+        }
+
+
+        .question-card {
+            padding: 18px;
+        }
+
+
+        .submit-card {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+
+        .submit-button {
+            width: 100%;
+        }
+    }
+
+</style>

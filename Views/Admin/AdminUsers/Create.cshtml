@@ -1,0 +1,139 @@
+﻿@model JobCareerPlatform.Models.Admin.AdminCreateUserViewModel
+
+@{
+    ViewData["Title"] = "Create User";
+    Layout = "_AdminLayout";
+}
+
+<div class="mb-4">
+    <a asp-action="Index"
+       class="text-decoration-none">
+        ← Back to User Management
+    </a>
+
+    <h3 class="fw-bold mt-3 mb-1">
+        Create User Account
+    </h3>
+
+    <p class="text-muted">
+        Create a new account for the JobCareerPlatform.
+    </p>
+</div>
+
+<div class="admin-panel">
+
+    <form asp-action="Create"
+          method="post">
+
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger"></div>
+
+        <div class="row g-4">
+
+            <div class="col-md-6">
+
+                <label asp-for="FullName"
+                       class="form-label"></label>
+
+                <input asp-for="FullName"
+                       class="form-control"
+                       placeholder="Enter full name" />
+
+                <span asp-validation-for="FullName"
+                      class="text-danger"></span>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <label asp-for="Email"
+                       class="form-label"></label>
+
+                <input asp-for="Email"
+                       class="form-control"
+                       placeholder="example@email.com" />
+
+                <span asp-validation-for="Email"
+                      class="text-danger"></span>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <label asp-for="UserRole"
+                       class="form-label"></label>
+
+                <select asp-for="UserRole"
+                        class="form-select">
+
+                    <option value="">
+                        -- Select Role --
+                    </option>
+
+                    @foreach (var role in ViewBag.Roles)
+                    {
+                        <option value="@role">
+                            @role
+                        </option>
+                    }
+
+                </select>
+
+                <span asp-validation-for="UserRole"
+                      class="text-danger"></span>
+
+            </div>
+
+            <div class="col-md-6"></div>
+
+            <div class="col-md-6">
+
+                <label asp-for="Password"
+                       class="form-label"></label>
+
+                <input asp-for="Password"
+                       class="form-control" />
+
+                <span asp-validation-for="Password"
+                      class="text-danger"></span>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <label asp-for="ConfirmPassword"
+                       class="form-label"></label>
+
+                <input asp-for="ConfirmPassword"
+                       class="form-control" />
+
+                <span asp-validation-for="ConfirmPassword"
+                      class="text-danger"></span>
+
+            </div>
+
+        </div>
+
+        <hr class="my-4" />
+
+        <div class="d-flex justify-content-end gap-2">
+
+            <a asp-action="Index"
+               class="btn btn-outline-secondary">
+                Cancel
+            </a>
+
+            <button type="submit"
+                    class="btn btn-primary px-4">
+                Create User
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

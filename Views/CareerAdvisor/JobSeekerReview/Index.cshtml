@@ -1,0 +1,57 @@
+@model List<JobSeekerAssessmentSummaryViewModel>
+@{
+    ViewData["Title"] = "Job Seekers";
+}
+
+<div class="bg-white rounded-4 shadow-sm p-3 mb-4">
+    <h4 class="mb-3">Job Seekers</h4>
+    <form method="get" class="d-flex gap-2">
+        <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Search by name or email" />
+        <button type="submit" class="btn btn-primary rounded-pill px-4">Search</button>
+        @if (!string.IsNullOrWhiteSpace(ViewBag.Search))
+        {
+            <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">Clear</a>
+        }
+    </form>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-light border text-center text-muted rounded-4">No job seekers found.</div>
+}
+else
+{
+    <div class="card border-0 rounded-4 shadow-sm">
+        <div class="card-body p-0">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-3">Name</th>
+                        <th>Email</th>
+                        <th>Preferred Category</th>
+                        <th>Assessments Taken</th>
+                        <th>Passed</th>
+                        <th>Average Score</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var js in Model)
+                    {
+                        <tr>
+                            <td class="ps-3">@js.FullName</td>
+                            <td>@js.Email</td>
+                            <td>@(js.PreferredJobCategory ?? "-")</td>
+                            <td>@js.AssessmentsTaken</td>
+                            <td>@js.AssessmentsPassed</td>
+                            <td>@js.AverageScore.ToString("0.0")</td>
+                            <td class="text-end pe-3">
+                                <a asp-action="Details" asp-route-userId="@js.UserId" class="btn btn-outline-primary btn-sm rounded-pill">View Details</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

@@ -1,0 +1,165 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model CompanyProfile
+@{
+    ViewData["Title"] = "Company Profile";
+}
+
+<div class="bg-light rounded-4 p-4">
+    <div class="d-flex justify-content-between align-items-center bg-white rounded-4 shadow-sm p-3 mb-4">
+        <h4 class="mb-0">Company Profile</h4>
+    </div>
+
+    @if (Model == null)
+    {
+        <div class="card border-0 rounded-4 shadow-sm">
+            <div class="card-body text-center py-5">
+                <p class="text-muted mb-3">You haven't created a company profile yet. You need one before you can post job vacancies.</p>
+                <a asp-action="AddData" class="btn btn-primary rounded-pill px-4">Create Company Profile</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 rounded-4 shadow-sm">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    @if (!string.IsNullOrEmpty(Model.LogoUrl))
+                    {
+                        <img src="@Model.LogoUrl" alt="@Model.CompanyName logo" style="max-height:80px; max-width:160px;" class="rounded-3 border" />
+                    }
+                    else
+                    {
+                        <div class="bg-light-subtle border rounded-3 d-flex align-items-center justify-content-center text-muted small" style="width:80px; height:80px;">
+                            No Logo
+                        </div>
+                    }
+                    <div>
+                        <h3 class="mb-0">@Model.CompanyName</h3>
+                        <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis">@Model.Industry</span>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="text-muted small">Company Size</div>
+                        <div class="fw-semibold">@Model.CompanySize</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small">Website</div>
+                        <div class="fw-semibold">@Model.Website</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small">Contact Email</div>
+                        <div class="fw-semibold">@Model.ContactEmail</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small">Contact Number</div>
+                        <div class="fw-semibold">@Model.ContactNumber</div>
+                    </div>
+                    <div class="col-12">
+                        <div class="text-muted small">Address</div>
+                        <div class="fw-semibold">@Model.Address</div>
+                    </div>
+                    <div class="col-12">
+                        <div class="text-muted small">Description</div>
+                        <div>@Model.Description</div>
+                    </div>
+                    <div class="col-12">
+                        <div class="text-muted small">Created</div>
+                        <div>@Model.CreatedDate.ToString("d")</div>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="d-flex gap-2">
+                    <a asp-action="EditCompany" asp-route-id="@Model.CompanyProfileId" class="btn btn-outline-secondary rounded-pill px-4">Edit</a>
+                    <form asp-action="Delete" asp-route-id="@Model.CompanyProfileId" method="post">
+                        @* @Html.AntiForgeryToken() *@
+                        <button type="submit" class="btn btn-outline-danger rounded-pill px-4">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
+@* @model CompanyProfile
+@{
+    ViewData["Title"] = "Company Profile";
+}
+<h1>Company Profile</h1>
+
+@if (Model == null)
+{
+    <div class="alert alert-info">
+        You haven't created a company profile yet. You need one before you can post job vacancies.
+    </div>
+    <a asp-action="AddData" class="btn btn-primary">Create Company Profile</a>
+}
+else
+{
+    <table class="table">
+        <tr>
+            <th>Company Logo</th>
+            <td>
+                @if (!string.IsNullOrEmpty(Model.LogoUrl))
+                {
+                    <img src="@Model.LogoUrl" alt="@Model.CompanyName logo" style="max-height:120px; max-width:240px;" class="mb-3 border rounded" />
+                }
+                else
+                {
+                    <div class="alert alert-light border text-muted mb-3" style="max-width:240px;">
+                        No logo uploaded yet.
+                    </div>
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>Company Name</th>
+            <td>@Model.CompanyName</td>
+        </tr>
+        <tr>
+            <th>Industry</th>
+            <td>@Model.Industry</td>
+        </tr>
+        <tr>
+            <th>Company Size</th>
+            <td>@Model.CompanySize</td>
+        </tr>
+        <tr>
+            <th>Website</th>
+            <td>@Model.Website</td>
+        </tr>
+        <tr>
+            <th>Description</th>
+            <td>@Model.Description</td>
+        </tr>
+        <tr>
+            <th>Address</th>
+            <td>@Model.Address</td>
+        </tr>
+        <tr>
+            <th>Contact Email</th>
+            <td>@Model.ContactEmail</td>
+        </tr>
+        <tr>
+            <th>Contact Number</th>
+            <td>@Model.ContactNumber</td>
+        </tr>
+        <tr>
+            <th>Created</th>
+            <td>@Model.CreatedDate.ToString("d")</td>
+        </tr>
+    </table>
+    <a asp-action="EditCompany" asp-route-id="@Model.CompanyProfileId" class="btn btn-secondary">Edit</a>
+    <form asp-action="Delete" asp-route-id="@Model.CompanyProfileId" method="post" style="display:inline;">
+        <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
+} *@

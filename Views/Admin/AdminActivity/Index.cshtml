@@ -1,0 +1,350 @@
+﻿@model IEnumerable<JobCareerPlatform.Models.UserActivityLogViewModel>
+
+@{
+    ViewData["Title"] = "Activity Monitoring";
+    Layout = "_AdminLayout";
+}
+
+<div class="mb-4">
+
+    <h3 class="fw-bold mb-1">
+        Activity Monitoring
+    </h3>
+
+    <p class="text-muted mb-0">
+        Monitor meaningful user activities and platform engagement.
+    </p>
+
+</div>
+
+<div class="admin-panel mb-4">
+
+    <form method="get">
+
+        <div class="row g-3">
+            <div class="col-lg-4">
+
+                <label class="form-label">
+                    Search
+                </label>
+
+                <input type="text"
+                       name="search"
+                       value="@ViewBag.Search"
+                       class="form-control"
+                       placeholder="Search user or activity..." />
+
+            </div>
+
+            <div class="col-lg-2">
+
+                <label class="form-label">
+                    User Role
+                </label>
+
+                <select name="role"
+                        class="form-select">
+
+                    <option value="">
+                        All Roles
+                    </option>
+
+                    <option value="JobSeeker"
+                            selected="@(ViewBag.Role == "JobSeeker" ? "selected" : null)">
+                        Job Seeker
+                    </option>
+
+                    <option value="Employer"
+                            selected="@(ViewBag.Role == "Employer" ? "selected" : null)">
+                        Employer
+                    </option>
+
+                    <option value="CareerAdvisor"
+                            selected="@(ViewBag.Role == "CareerAdvisor" ? "selected" : null)">
+                        Career Advisor
+                    </option>
+
+                    <option value="SystemAdmin"
+                            selected="@(ViewBag.Role == "SystemAdmin" ? "selected" : null)">
+                        System Admin
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+                    Activity
+                </label>
+
+                <select name="activityType"
+                        class="form-select">
+
+                    <option value="">
+                        All Activities
+                    </option>
+
+                    @foreach (var item in ViewBag.ActivityTypes)
+                    {
+                        <option value="@item"
+                                selected="@(ViewBag.ActivityType == item
+                                                                    ? "selected"
+                                                                    : null)">
+                        @item
+                    </option>
+                                        }
+
+                </select>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+                    Module
+                </label>
+
+                <select name="entityType"
+                        class="form-select">
+
+                    <option value="">
+                        All Modules
+                    </option>
+
+                    @foreach (var item in ViewBag.EntityTypes)
+                    {
+                        <option value="@item"
+                                selected="@(ViewBag.EntityType == item
+                                                                    ? "selected"
+                                                                    : null)">
+                        @item
+                    </option>
+                                        }
+
+                </select>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+                    Date From
+                </label>
+
+                <input type="date"
+                       name="dateFrom"
+                       value="@ViewBag.DateFrom"
+                       class="form-control" />
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+                    Date To
+                </label>
+
+                <input type="date"
+                       name="dateTo"
+                       value="@ViewBag.DateTo"
+                       class="form-control" />
+
+            </div>
+
+            <div class="col-lg-3 d-flex align-items-end gap-2">
+
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary flex-fill">
+                    Reset
+                </a>
+
+                <button type="submit"
+                        class="btn btn-primary flex-fill">
+                    Search
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+<div class="admin-panel">
+
+    <div class="d-flex justify-content-between
+                align-items-center mb-3">
+
+        <div>
+
+            <h5 class="mb-1">
+                User Activity
+            </h5>
+
+            <small class="text-muted">
+                @Model.Count() record(s) found
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+
+                <tr>
+                    <th>Date & Time</th>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Activity</th>
+                    <th>Module</th>
+                    <th>Description</th>
+                    <th class="text-end">
+                        Action
+                    </th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @if (!Model.Any())
+                {
+                    <tr>
+
+                        <td colspan="7"
+                            class="text-center text-muted py-5">
+
+                            No user activity records found.
+
+                        </td>
+
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var activity in Model)
+                    {
+                        <tr>
+
+                            <td>
+
+                                <div class="fw-semibold">
+
+                                    @(activity.CreatedAt
+                                                                .ToLocalTime()
+                                                                .ToString("dd/MM/yyyy"))
+
+                                </div>
+
+                                <small class="text-muted">
+
+                                    @(activity.CreatedAt
+                                                                .ToLocalTime()
+                                                                .ToString("hh:mm tt"))
+
+                        </small>
+
+                            </td>
+
+                            <td>
+
+                                <div class="fw-semibold">
+                                    @activity.UserName
+                                </div>
+
+                                <small class="text-muted">
+                                    @activity.UserEmail
+                                </small>
+
+                            </td>
+
+                            <td>
+
+                        @if (activity.UserRole == "JobSeeker")
+                                {
+                                    <span class="badge bg-primary">
+                                        Job Seeker
+                                    </span>
+                                }
+                                else if (activity.UserRole == "Employer")
+                                {
+                                    <span class="badge bg-success">
+                                        Employer
+                                    </span>
+                                }
+                                else if (activity.UserRole == "CareerAdvisor")
+                                {
+                                    <span class="badge bg-warning text-dark">
+                                        Career Advisor
+                                    </span>
+                                }
+                                else if (activity.UserRole == "SystemAdmin")
+                                {
+                                    <span class="badge bg-dark">
+                                        System Admin
+                                    </span>
+                                }
+
+                        </td>
+
+                        <td>
+                            <span class="fw-semibold">
+                                @activity.ActivityType
+                            </span>
+                        </td>
+
+                        <td>
+
+                            @(string.IsNullOrWhiteSpace(
+                                                    activity.EntityType)
+                                                    ? "-"
+                                                    : activity.EntityType)
+
+                        </td>
+
+                        <td style="max-width: 300px;">
+
+                            <div class="text-truncate"
+                                 style="max-width: 300px;"
+                                 title="@activity.Description">
+
+                                @(string.IsNullOrWhiteSpace(
+                                                            activity.Description)
+                                                            ? "-"
+                                                            : activity.Description)
+
+                        </div>
+
+                            </td>
+
+                            <td class="text-end">
+
+                                <a asp-action="Details"
+                                   asp-route-id="@activity.ActivityId"
+                                   class="btn btn-sm btn-outline-primary">
+
+                                    View
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+                                }
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

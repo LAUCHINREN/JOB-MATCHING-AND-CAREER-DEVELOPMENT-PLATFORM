@@ -1,0 +1,116 @@
+﻿@model JobPosting
+@{
+    ViewData["Title"] = Model.JobTitle;
+}
+
+<div class="bg-light rounded-4 p-4">
+    <a asp-action="Index" class="btn btn-link mb-3 ps-0">&larr; Back to Job Posts</a>
+
+    <div class="card border-0 rounded-4 shadow-sm">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h3 class="mb-1">@Model.JobTitle</h3>
+                    <p class="text-muted mb-0">@(((JobCareerPlatform.Models.CompanyProfile?)ViewBag.CompanyProfile)?.CompanyName) &middot; @Model.Location</p>
+                </div>
+                <span class="badge rounded-pill @(Model.ModerationStatus == "Approved" ? "bg-success-subtle text-success-emphasis" : Model.ModerationStatus == "Rejected" ? "bg-danger-subtle text-danger-emphasis" : "bg-secondary-subtle text-secondary-emphasis")">
+                    @Model.ModerationStatus
+                </span>
+            </div>
+
+            <div class="row g-4 mb-3">
+                <div class="col-md-6">
+                    <div class="text-muted small">Category</div>
+                    <div class="fw-semibold">@Model.JobCategory?.CategoryName</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-muted small">Employment Type</div>
+                    <div class="fw-semibold">@Model.EmploymentType</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-muted small">Salary Range</div>
+                    <div class="fw-semibold">
+                        @if (Model.SalaryMin.HasValue || Model.SalaryMax.HasValue)
+                        {
+                            @:RM @Model.SalaryMin?.ToString("N0") - RM @Model.SalaryMax?.ToString("N0")
+                        }
+                        else
+                        {
+                            <span class="text-muted">Not specified</span>
+                        }
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-muted small">Qualification</div>
+                    <div class="fw-semibold">@Model.Qualification</div>
+                </div>
+                <div class="col-12">
+                    <div class="text-muted small">Required Skills</div>
+                    <div class="fw-semibold">@Model.RequiredSkills</div>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+            <h5>Description</h5>
+            <p style="white-space: pre-line;">@Model.JobDescription</p>
+        </div>
+
+        @if (Model.ModerationStatus == "Approved" && Model.VacancyStatus == "Open")
+        {
+            <div class="card-footer bg-white rounded-bottom-4 d-flex justify-content-end p-3">
+                <a asp-controller="JobApplications" asp-action="Index" asp-route-vacancyId="@Model.JobId" class="btn btn-primary rounded-pill px-4">
+                    Manage Applicants
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+
+@* @model JobPosting
+
+@{
+    ViewData["Title"] = Model.JobTitle;
+}
+
+<a asp-action="Index" class="btn btn-link mb-3">&larr; Back to Job Posts</a>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h3>@Model.JobTitle</h3>
+        <p class="text-muted mb-3">@Model.CompanyProfile?.CompanyName &middot; @Model.Location</p>
+
+        <div class="row mb-3">
+            <div class="col-sm-3"><strong>Category</strong></div>
+            <div class="col-sm-9">@Model.JobCategory?.CategoryName</div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-sm-3"><strong>Employment Type</strong></div>
+            <div class="col-sm-9">@Model.EmploymentType</div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-sm-3"><strong>Salary Range</strong></div>
+            <div class="col-sm-9">
+                @if (Model.SalaryMin.HasValue || Model.SalaryMax.HasValue)
+                {
+                    @:RM @Model.SalaryMin?.ToString("N0") - RM @Model.SalaryMax?.ToString("N0")
+                }
+                else
+                {
+                    <span class="text-muted">Not specified</span>
+                }
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-sm-3"><strong>Qualification</strong></div>
+            <div class="col-sm-9">@Model.Qualification</div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-sm-3"><strong>Required Skills</strong></div>
+            <div class="col-sm-9">@Model.RequiredSkills</div>
+        </div>
+        <hr />
+        <h5>Description</h5>
+        <p style="white-space: pre-line;">@Model.Description</p>
+    </div>
+</div> *@

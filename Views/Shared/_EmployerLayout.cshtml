@@ -1,0 +1,76 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - JobCareerPlatform</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/JobCareerPlatform.styles.css" asp-append-version="true" />
+    <style>
+            .navbar-nav .nav-link {
+                color: #495057;
+                transition: background-color 0.15s ease, color 0.15s ease;
+            }
+
+                .navbar-nav .nav-link:hover,
+                .navbar-nav .nav-link.active {
+                    background-color: var(--bs-primary-bg-subtle);
+                    color: var(--bs-primary);
+                }
+    </style>
+</head>
+<body>
+    @{
+        string currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    }
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" asp-controller="JobApplications" asp-action="Index">
+                    <span class="d-flex align-items-center justify-content-center rounded-3 bg-primary text-white fw-bold" style="width:32px;height:32px;font-size:0.85rem;">JC</span>
+                    JobCareerPlatform
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1 gap-1">
+                        <li class="nav-item">
+                            <a class="nav-link px-3 rounded-pill @(currentController == "JobApplications" ? "active fw-semibold" : "")" asp-controller="JobApplications" asp-action="Index">Applicant Tracking</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-3 rounded-pill @(currentController == "JobVacancies" ? "active fw-semibold" : "")" asp-controller="JobVacancies" asp-action="Index">Job Posts</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-3 rounded-pill @(currentController == "CompanyProfiles" ? "active fw-semibold" : "")" asp-controller="CompanyProfiles" asp-action="Index">Company Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-3 rounded-pill @(currentController == "FitScoreSettings" ? "active fw-semibold" : "")" asp-controller="FitScoreSettings" asp-action="Index">Matching Preferences</a>
+                        </li>
+                    </ul>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container-fluid px-4">
+        <main role="main" class="py-4">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,192 @@
+﻿@using JobCareerPlatform.Data
+@using Microsoft.AspNetCore.Identity
+
+@inject UserManager<ApplicationUser> UserManager
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - JobCareerPlatform</title>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/admin.css"
+          asp-append-version="true" />
+</head>
+
+<body class="admin-body">
+
+    <div class="admin-wrapper">
+
+        <aside class="admin-sidebar">
+
+            <div class="admin-brand">
+                <div class="brand-logo">
+                    JC
+                </div>
+
+                <div>
+                    <div class="brand-name">
+                        JobCareer
+                    </div>
+
+                    <div class="brand-subtitle">
+                        Career Platform
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-label">
+                MAIN MENU
+            </div>
+
+            <nav class="admin-navigation">
+
+                <a asp-controller="AdminDashboard"
+                   asp-action="Index"
+                   class="admin-nav-link
+                   @(ViewContext.RouteData.Values["controller"]?.ToString() == "AdminDashboard" ? "active" : "")">
+
+                    <span class="nav-icon">▦</span>
+                    Dashboard
+                </a>
+
+                <a asp-controller="AdminUsers"
+                   asp-action="Index"
+                   class="admin-nav-link
+                   @(ViewContext.RouteData.Values["controller"]?.ToString() == "AdminUsers" ? "active" : "")">
+
+                    <span class="nav-icon">♟</span>
+                    User Management
+                </a>
+
+                <a asp-controller="AdminJobCategories"
+                   asp-action="Index"
+                   class="admin-nav-link
+                    @(ViewContext.RouteData.Values["controller"]?.ToString() == "AdminJobCategories" ? "active" : "")">
+
+                    <span class="nav-icon">▤</span>
+                    Job Categories
+                </a>
+
+                <a asp-controller="AdminJobModeration"
+                   asp-action="Index"
+                   class="admin-nav-link
+                     @(ViewContext.RouteData.Values["controller"]?.ToString() == "AdminJobModeration" ? "active" : "")">
+
+                    <span class="nav-icon">✓</span>
+                    Job Moderation
+                </a>
+
+                <div class="sidebar-label mt-4">
+                    REPORTING
+                </div>
+
+                <a asp-controller="AdminAnalytics"
+                   asp-action="Index"
+                   class="admin-nav-link
+                    @(ViewContext.RouteData.Values["controller"]?.ToString()
+                          == "AdminAnalytics"
+                          ? "active"
+                          : "")">
+
+                    <span class="nav-icon">▥</span>
+                    Analytics
+
+                </a>
+
+                <a asp-controller="AdminActivity"
+                   asp-action="Index"
+                   class="admin-nav-link
+                    @(ViewContext.RouteData.Values["controller"]?.ToString()
+                          == "AdminActivity"
+                          ? "active"
+                          : "")">
+
+                    <span class="nav-icon">☷</span>
+                    Activity Monitoring
+
+                </a>
+
+            </nav>
+
+            <div class="sidebar-footer">
+
+                <div class="admin-profile">
+
+                    <div class="admin-avatar">
+                        A
+                    </div>
+
+                    <div>
+                        <div class="admin-profile-name">
+                            System Admin
+                        </div>
+
+                        <div class="admin-profile-role">
+                            Administrator
+                        </div>
+                    </div>
+
+                </div>
+
+                <form asp-area="Identity"
+                      asp-page="/Account/Logout"
+                      asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+
+                    <button type="submit"
+                            class="logout-button">
+                        Logout
+                    </button>
+
+                </form>
+
+            </div>
+
+        </aside>
+
+        <main class="admin-main">
+
+            <header class="admin-topbar">
+
+                <div>
+                    <h5 class="topbar-title">
+                        @ViewData["Title"]
+                    </h5>
+                </div>
+
+                <div class="topbar-user">
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <span>
+                            @User.Identity.Name
+                        </span>
+                    }
+
+                </div>
+
+            </header>
+
+            <div class="admin-content">
+
+                @RenderBody()
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

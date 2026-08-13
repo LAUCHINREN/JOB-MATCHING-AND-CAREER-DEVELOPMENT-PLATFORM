@@ -1,0 +1,77 @@
+﻿@model FitScoreSettingsInput
+@{
+    ViewData["Title"] = "Matching Preferences";
+}
+
+<div class="bg-light rounded-4 p-4">
+    <div class="d-flex justify-content-between align-items-center bg-white rounded-4 shadow-sm p-3 mb-4">
+        <h4 class="mb-0">Matching Preferences</h4>
+    </div>
+
+    @if (TempData["SavedMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SavedMessage"]</div>
+    }
+
+    <div class="card border-0 rounded-4 shadow-sm">
+        <div class="card-body p-4">
+            <p class="text-muted">
+                Adjust how much each factor matters when scoring candidates against your job posts.
+                The four weights must add up to 100.
+            </p>
+
+            <form asp-action="Index" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="SalaryWeight" class="form-label"></label>
+                        <input asp-for="SalaryWeight" type="number" min="0" max="100" step="1" class="form-control rounded-3 weight-input" />
+                        <span asp-validation-for="SalaryWeight" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="CategoryWeight" class="form-label"></label>
+                        <input asp-for="CategoryWeight" type="number" min="0" max="100" step="1" class="form-control rounded-3 weight-input" />
+                        <span asp-validation-for="CategoryWeight" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="LocationWeight" class="form-label"></label>
+                        <input asp-for="LocationWeight" type="number" min="0" max="100" step="1" class="form-control rounded-3 weight-input" />
+                        <span asp-validation-for="LocationWeight" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="EducationWeight" class="form-label"></label>
+                        <input asp-for="EducationWeight" type="number" min="0" max="100" step="1" class="form-control rounded-3 weight-input" />
+                        <span asp-validation-for="EducationWeight" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    Current total: <span id="weightSum" class="fw-bold">100</span> / 100
+                </div>
+
+                <button type="submit" class="btn btn-primary rounded-pill px-4">Save Preferences</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var inputs = document.querySelectorAll('.weight-input');
+            var sumSpan = document.getElementById('weightSum');
+            function updateSum() {
+                var total = 0;
+                inputs.forEach(function(i) { total += parseInt(i.value || '0', 10); });
+                sumSpan.textContent = total;
+                sumSpan.className = total === 100 ? 'text-success fw-bold' : 'text-danger fw-bold';
+            }
+            inputs.forEach(function(i) { i.addEventListener('input', updateSum); });
+            updateSum();
+        });
+    </script>
+}

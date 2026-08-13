@@ -1,0 +1,355 @@
+﻿@model JobCareerPlatform.Models.JobSeekerProfile
+
+@{
+    Layout = "_JobSeekerLayout";
+    ViewData["Title"] = "Create Profile";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-xl-9 col-lg-10">
+
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+
+                <!-- Header -->
+                <div class="profile-header px-4 px-md-5 py-4">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+
+                        <div>
+                            <span class="badge rounded-pill bg-light text-primary mb-3 px-3 py-2">
+                                Job Seeker Profile
+                            </span>
+
+                            <h2 class="fw-bold mb-2 text-white">
+                                Build Your Career Profile
+                            </h2>
+
+                            <p class="mb-0 text-white-50">
+                                Tell us about your background, experience and career preferences.
+                            </p>
+                        </div>
+
+                        <div class="profile-icon">
+                            👤
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+
+                    <form asp-action="CreateProfile" method="post">
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger rounded-3"
+                             role="alert">
+                        </div>
+
+                        <!-- Personal Information -->
+                        <div class="section-title mb-4">
+                            <div class="section-icon">01</div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Personal Information</h5>
+                                <p class="text-muted small mb-0">
+                                    Basic information used in your career profile.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="row g-4">
+
+                            <div class="col-md-6">
+                                <label asp-for="FullName"
+                                       class="form-label fw-semibold">
+                                    Full Name
+                                </label>
+
+                                <input asp-for="FullName"
+                                       class="form-control form-control-lg"
+                                       placeholder="Enter your full name" />
+
+                                <span asp-validation-for="FullName"
+                                      class="text-danger small">
+                                </span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ContactNumber"
+                                       class="form-label fw-semibold">
+                                    Contact Number
+                                </label>
+
+                                <input asp-for="ContactNumber"
+                                       class="form-control form-control-lg"
+                                       placeholder="e.g. 012-3456789" />
+
+                                <span asp-validation-for="ContactNumber"
+                                      class="text-danger small">
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <!-- Career Objective -->
+                        <div class="mt-4">
+                            <label asp-for="CareerObjective"
+                                   class="form-label fw-semibold">
+                                Career Objective
+                            </label>
+
+                            <textarea asp-for="CareerObjective"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Briefly describe your career goals and the type of opportunities you are looking for..."></textarea>
+
+                            <div class="form-text">
+                                Keep it short and relevant to your career goals.
+                            </div>
+
+                            <span asp-validation-for="CareerObjective"
+                                  class="text-danger small">
+                            </span>
+                        </div>
+
+                        <hr class="my-5" />
+
+                        <!-- Education -->
+                        <div class="section-title mb-4">
+                            <div class="section-icon">02</div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Education & Experience</h5>
+                                <p class="text-muted small mb-0">
+                                    Provide your academic background and work experience.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="row g-4">
+
+                            <div class="col-md-6">
+                                <label asp-for="EducationLevel"
+                                       class="form-label fw-semibold">
+                                    Education Level
+                                </label>
+
+                                <select asp-for="EducationLevel"
+                                        class="form-select form-select-lg">
+
+                                    <option value="">Select education level</option>
+                                    <option>Diploma</option>
+                                    <option>Bachelor's Degree</option>
+                                    <option>Master's Degree</option>
+                                    <option>Doctorate</option>
+                                    <option>Professional Certificate</option>
+                                    <option>Other</option>
+                                </select>
+
+                                <span asp-validation-for="EducationLevel"
+                                      class="text-danger small">
+                                </span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="FieldOfStudy"
+                                       class="form-label fw-semibold">
+                                    Field of Study
+                                </label>
+
+                                <input asp-for="FieldOfStudy"
+                                       class="form-control form-control-lg"
+                                       placeholder="e.g. Software Engineering" />
+
+                                <span asp-validation-for="FieldOfStudy"
+                                      class="text-danger small">
+                                </span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ExperienceYears"
+                                       class="form-label fw-semibold">
+                                    Years of Experience
+                                </label>
+
+                                <input asp-for="ExperienceYears"
+                                       class="form-control form-control-lg"
+                                       min="0"
+                                       max="50"
+                                       placeholder="0" />
+
+                                <span asp-validation-for="ExperienceYears"
+                                      class="text-danger small">
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <hr class="my-5" />
+
+                        <!-- Career Preferences -->
+                        <div class="section-title mb-4">
+                            <div class="section-icon">03</div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Career Preferences</h5>
+                                <p class="text-muted small mb-0">
+                                    Help us understand what type of job you are looking for.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="row g-4">
+
+                            <div class="col-md-6">
+                                <label asp-for="PreferredJobCategory"
+                                       class="form-label fw-semibold">
+                                    Preferred Job Category
+                                </label>
+
+                                <select asp-for="PreferredJobCategory"
+                                        class="form-select form-select-lg">
+
+                                    <option value="">Select job category</option>
+                                    <option>Software Development</option>
+                                    <option>Data & Analytics</option>
+                                    <option>Cybersecurity</option>
+                                    <option>Cloud Computing</option>
+                                    <option>UI/UX Design</option>
+                                    <option>Quality Assurance</option>
+                                    <option>Project Management</option>
+                                    <option>Other</option>
+                                </select>
+
+                                <span asp-validation-for="PreferredJobCategory"
+                                      class="text-danger small">
+                                </span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="PreferredLocation"
+                                       class="form-label fw-semibold">
+                                    Preferred Work Location
+                                </label>
+
+                                <input asp-for="PreferredLocation"
+                                       class="form-control form-control-lg"
+                                       placeholder="e.g. Kuala Lumpur" />
+
+                                <span asp-validation-for="PreferredLocation"
+                                      class="text-danger small">
+                                </span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ExpectedSalary"
+                                       class="form-label fw-semibold">
+                                    Expected Salary
+                                </label>
+
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text">
+                                        RM
+                                    </span>
+
+                                    <input asp-for="ExpectedSalary"
+                                           class="form-control"
+                                           placeholder="e.g. 3500" />
+                                </div>
+
+                                <span asp-validation-for="ExpectedSalary"
+                                      class="text-danger small">
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-flex flex-column flex-sm-row justify-content-between gap-3 mt-5 pt-3">
+
+                            <a asp-action="Home"
+                               class="btn btn-light btn-lg px-4 rounded-3">
+                                ← Back to Dashboard
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary btn-lg px-5 rounded-3">
+                                Save Profile
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background: #f6f8fc;
+    }
+
+    .profile-header {
+        background: linear-gradient(135deg, #0d6efd, #4f46e5);
+    }
+
+    .profile-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 22px;
+        background: rgba(255,255,255,.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 34px;
+        backdrop-filter: blur(4px);
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .section-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: rgba(var(--bs-primary-rgb), .1);
+        color: var(--bs-primary);
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 12px;
+        border-color: #dee2e6;
+    }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: rgba(var(--bs-primary-rgb), .6);
+            box-shadow: 0 0 0 .2rem rgba(var(--bs-primary-rgb), .12);
+        }
+
+    textarea.form-control {
+        resize: vertical;
+    }
+
+    .input-group .input-group-text {
+        border-radius: 12px 0 0 12px;
+    }
+
+    .input-group .form-control {
+        border-radius: 0 12px 12px 0;
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

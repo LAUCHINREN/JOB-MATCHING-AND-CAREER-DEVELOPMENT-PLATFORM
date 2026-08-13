@@ -1,0 +1,212 @@
+@page
+@model RegisterModel
+
+@{
+    ViewData["Title"] = "Create Account";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9">
+
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-4 p-md-5">
+
+                    <div class="text-center mb-4">
+                        <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill mb-3">
+                            CareerConnect
+                        </span>
+
+                        <h1 class="h3 fw-bold mb-2">
+                            Create Your Account
+                        </h1>
+
+                        <p class="text-muted mb-0">
+                            Join the Job Matching and Career Development Platform.
+                        </p>
+                    </div>
+
+                    <form id="registerForm"
+                          asp-route-returnUrl="@Model.ReturnUrl"
+                          method="post">
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger"
+                             role="alert">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                Account Type
+                            </label>
+
+                            <div class="row g-3">
+
+                                <div class="col-md-4">
+                                    <label class="border rounded-3 p-3 w-100 text-center role-option">
+                                        <input type="radio"
+                                               asp-for="Input.UserRole"
+                                               value="Job Seeker"
+                                               class="form-check-input me-2" />
+
+                                        <span class="fw-semibold">
+                                            Job Seeker
+                                        </span>
+                                    </label>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="border rounded-3 p-3 w-100 text-center role-option">
+                                        <input type="radio"
+                                               asp-for="Input.UserRole"
+                                               value="Employer"
+                                               class="form-check-input me-2" />
+
+                                        <span class="fw-semibold">
+                                            Employer
+                                        </span>
+                                    </label>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="border rounded-3 p-3 w-100 text-center role-option">
+                                        <input type="radio"
+                                               asp-for="Input.UserRole"
+                                               value="Career Advisor"
+                                               class="form-check-input me-2" />
+
+                                        <span class="fw-semibold">
+                                            Career Advisor
+                                        </span>
+                                    </label>
+                                </div>
+
+                            </div>
+
+                            <span asp-validation-for="Input.UserRole"
+                                  class="text-danger small">
+                            </span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.FullName"
+                                   class="form-control"
+                                   placeholder="Full Name"
+                                   autocomplete="name"
+                                   aria-required="true" />
+
+                            <label asp-for="Input.FullName">
+                                Full Name
+                            </label>
+
+                            <span asp-validation-for="Input.FullName"
+                                  class="text-danger small">
+                            </span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Email"
+                                   class="form-control"
+                                   placeholder="name@example.com"
+                                   autocomplete="username"
+                                   aria-required="true" />
+
+                            <label asp-for="Input.Email">
+                                Email Address
+                            </label>
+
+                            <span asp-validation-for="Input.Email"
+                                  class="text-danger small">
+                            </span>
+                        </div>
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="Input.Password"
+                                           class="form-control"
+                                           placeholder="Password"
+                                           autocomplete="new-password"
+                                           aria-required="true" />
+
+                                    <label asp-for="Input.Password">
+                                        Password
+                                    </label>
+
+                                    <span asp-validation-for="Input.Password"
+                                          class="text-danger small">
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="Input.ConfirmPassword"
+                                           class="form-control"
+                                           placeholder="Confirm Password"
+                                           autocomplete="new-password"
+                                           aria-required="true" />
+
+                                    <label asp-for="Input.ConfirmPassword">
+                                        Confirm Password
+                                    </label>
+
+                                    <span asp-validation-for="Input.ConfirmPassword"
+                                          class="text-danger small">
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <button id="registerSubmit"
+                                type="submit"
+                                class="btn btn-primary btn-lg w-100 rounded-3 mt-4">
+                            Create Account
+                        </button>
+
+                        <div class="text-center mt-4">
+                            <span class="text-muted">
+                                Already have an account?
+                            </span>
+
+                            <a asp-page="./Login"
+                               asp-route-returnUrl="@Model.ReturnUrl"
+                               class="fw-semibold text-decoration-none">
+                                Login
+                            </a>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .role-option {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: #fff;
+    }
+
+    .role-option:hover {
+        border-color: var(--bs-primary) !important;
+        background: rgba(var(--bs-primary-rgb), 0.05);
+        transform: translateY(-2px);
+    }
+
+    .role-option:has(input:checked) {
+        border-color: var(--bs-primary) !important;
+        background: rgba(var(--bs-primary-rgb), 0.08);
+        box-shadow: 0 0 0 2px rgba(var(--bs-primary-rgb), 0.12);
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

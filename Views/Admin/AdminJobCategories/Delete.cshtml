@@ -1,0 +1,92 @@
+﻿@model JobCareerPlatform.Models.Admin.JobCategory
+
+@{
+    ViewData["Title"] = "Delete Job Category";
+    Layout = "_AdminLayout";
+}
+
+<div class="mb-4">
+
+    <a asp-action="Details"
+       asp-route-id="@Model.CategoryId"
+       class="text-decoration-none">
+        ← Back to Category Details
+    </a>
+
+</div>
+
+<div class="admin-panel">
+
+    <div class="text-center py-4">
+
+        <h3 class="fw-bold">
+            Delete Job Category?
+        </h3>
+
+        <p class="text-muted mt-3">
+
+            You are about to permanently delete
+
+            <strong>
+                @Model.CategoryName
+            </strong>.
+
+        </p>
+
+        @if (Model.SubCategories.Any())
+        {
+            <div class="alert alert-danger mt-4">
+
+                This category currently contains
+                <strong>@Model.SubCategories.Count</strong>
+                subcategory(s).
+
+                It cannot be deleted until those
+                subcategories are moved or deleted.
+
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning mt-4">
+
+                This action permanently removes the category
+                from the database.
+
+            </div>
+        }
+
+        <form asp-action="Delete"
+              method="post">
+
+            <input type="hidden"
+                   name="id"
+                   value="@Model.CategoryId" />
+
+            <div class="d-flex justify-content-center gap-2 mt-4">
+
+                <a asp-action="Details"
+                   asp-route-id="@Model.CategoryId"
+                   class="btn btn-outline-secondary">
+
+                    Cancel
+
+                </a>
+
+                @if (!Model.SubCategories.Any())
+                {
+                    <button type="submit"
+                            class="btn btn-danger">
+
+                        Confirm Delete
+
+                    </button>
+                }
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>

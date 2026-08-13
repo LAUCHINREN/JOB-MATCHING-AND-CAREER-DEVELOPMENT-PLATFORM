@@ -1,0 +1,279 @@
+﻿@model IEnumerable<JobCareerPlatform.Models.Admin.JobCategory>
+
+@{
+    ViewData["Title"] = "Job Categories";
+    Layout = "_AdminLayout";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h3 class="fw-bold mb-1">
+            Job Category Management
+        </h3>
+
+        <p class="text-muted mb-0">
+            Configure job categories used throughout the career platform.
+        </p>
+    </div>
+
+    <a asp-action="Create"
+       class="btn btn-primary px-4">
+        + Add Category
+    </a>
+
+</div>
+
+<div class="admin-panel mb-4">
+
+    <form method="get">
+
+        <div class="row g-3">
+
+            <div class="col-lg-4">
+
+                <label class="form-label">
+                    Search
+                </label>
+
+                <input type="text"
+                       name="search"
+                       value="@ViewBag.Search"
+                       class="form-control"
+                       placeholder="Search category..." />
+
+            </div>
+
+            <div class="col-lg-2">
+
+                <label class="form-label">
+                    Status
+                </label>
+
+                <select name="status"
+                        class="form-select">
+
+                    <option value=""
+                            selected="@(string.IsNullOrEmpty(ViewBag.Status) ? "selected" : null)">
+                        All Status
+                    </option>
+
+                    <option value="Active"
+                            selected="@(ViewBag.Status == "Active" ? "selected" : null)">
+                        Active
+                    </option>
+
+                    <option value="Inactive"
+                            selected="@(ViewBag.Status == "Inactive" ? "selected" : null)">
+                        Inactive
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+                    Parent Category
+                </label>
+
+                <select name="parentCategoryId"
+                        class="form-select">
+
+                    <option value="">
+                        All Categories
+                    </option>
+
+                    @foreach (var category in ViewBag.MainCategories)
+                    {
+                        <option value="@category.CategoryId"
+                                selected="@(ViewBag.ParentCategoryId != null &&
+                                                                            (int)ViewBag.ParentCategoryId == category.CategoryId
+                                                                            ? "selected"
+                                                                            : null)">
+
+                        @category.CategoryName
+
+                        </option>
+                                        }
+
+                </select>
+
+            </div>
+
+            <div class="col-lg-3 d-flex align-items-end gap-2">
+
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary flex-fill">
+                    Reset
+                </a>
+                
+                <button type="submit"
+                        class="btn btn-primary flex-fill">
+                    Search
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+<div class="admin-panel">
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Parent Category</th>
+                    <th>Subcategories</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th class="text-end">
+                        Actions
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6"
+                            class="text-center text-muted py-5">
+
+                            No job categories found.
+
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var category in Model)
+                    {
+                        <tr>
+
+                            <td>
+
+                                <div class="fw-semibold">
+                                    @category.CategoryName
+                                </div>
+
+                                @if (!string.IsNullOrWhiteSpace(category.Description))
+                                {
+                                    <small class="text-muted">
+                                        @category.Description
+                                    </small>
+                                }
+
+                            </td>
+
+                            <td>
+                                @if (category.ParentCategory != null)
+                                {
+                                    <span>
+                                        @category.ParentCategory.CategoryName
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        Main Category
+                                    </span>
+                                }
+                            </td>
+
+                            <td>
+
+                                @if (category.SubCategories.Count == 1)
+                                {
+                                    <span class="badge bg-primary">
+                                        1 subcategory
+                                    </span>
+                                }
+                                else if (category.SubCategories.Count > 1)
+                                {
+                                    <span class="badge bg-primary">
+                                        @category.SubCategories.Count subcategories
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        0
+                                    </span>
+                                }
+
+                            </td>
+
+                            <td>
+
+                                @if (category.CategoryStatus == "Active")
+                                {
+                                    <span class="badge bg-success">
+                                        Active
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+                                        Inactive
+                                    </span>
+                                }
+
+                            </td>
+
+                            <td>
+                            @(category.CreatedAt
+                                .ToLocalTime()
+                                .ToString("dd MMM yyyy"))
+                            </td>
+
+                            <td class="text-end">
+
+                                <a asp-action="Details"
+                                   asp-route-id="@category.CategoryId"
+                                   class="btn btn-sm btn-outline-primary">
+                                    View
+                                </a>
+
+                                <a asp-action="Edit"
+                                   asp-route-id="@category.CategoryId"
+                                   class="btn btn-sm btn-outline-secondary">
+                                    Edit
+                                </a>
+
+                            </td>
+
+                        </tr>
+                    }
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

@@ -1,0 +1,114 @@
+﻿@model JobCareerPlatform.Models.Admin.AdminEditUserViewModel
+
+@{
+    ViewData["Title"] = "Edit User";
+    Layout = "_AdminLayout";
+}
+
+<div class="mb-4">
+
+    <a asp-action="Details"
+       asp-route-id="@Model.Id"
+       class="text-decoration-none">
+        ← Back to User Details
+    </a>
+
+    <h3 class="fw-bold mt-3 mb-1">
+        Edit User
+    </h3>
+
+    <p class="text-muted">
+        Update account information and platform role.
+    </p>
+
+</div>
+
+<div class="admin-panel">
+
+    <form asp-action="Edit"
+          method="post">
+
+        <input asp-for="Id"
+               type="hidden" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger"></div>
+
+        <div class="row g-4">
+
+            <div class="col-md-6">
+
+                <label asp-for="FullName"
+                       class="form-label"></label>
+
+                <input asp-for="FullName"
+                       class="form-control" />
+
+                <span asp-validation-for="FullName"
+                      class="text-danger"></span>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <label asp-for="Email"
+                       class="form-label"></label>
+
+                <input asp-for="Email"
+                       class="form-control" />
+
+                <span asp-validation-for="Email"
+                      class="text-danger"></span>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <label asp-for="UserRole"
+                       class="form-label"></label>
+
+                <select asp-for="UserRole"
+                        class="form-select">
+
+                    @foreach (var role in ViewBag.Roles)
+                    {
+                        <option value="@role">
+                            @role
+                        </option>
+                    }
+
+                </select>
+
+                <span asp-validation-for="UserRole"
+                      class="text-danger"></span>
+
+            </div>
+
+        </div>
+
+        <hr class="my-4" />
+
+        <div class="d-flex justify-content-end gap-2">
+
+            <a asp-action="Details"
+               asp-route-id="@Model.Id"
+               class="btn btn-outline-secondary">
+                Cancel
+            </a>
+
+            <button type="submit"
+                    class="btn btn-primary px-4">
+
+                Save Changes
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

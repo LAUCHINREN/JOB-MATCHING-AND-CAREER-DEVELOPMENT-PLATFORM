@@ -1,0 +1,595 @@
+﻿@model List<JobCareerPlatform.Models.SkillAssessment>
+
+@{
+    Layout = "_JobSeekerLayout";
+    ViewData["Title"] = "Skills Assessments";
+
+    var results =
+        ViewBag.Results as List<JobCareerPlatform.Models.AssessmentResult>
+        ?? new List<JobCareerPlatform.Models.AssessmentResult>();
+}
+
+<div class="py-3">
+
+    <div class="assessment-page">
+
+        <!-- HEADER -->
+        <div class="assessment-header mb-4">
+
+            <div>
+
+                <span class="page-badge">
+                    <i class="bi bi-clipboard-check me-1"></i>
+                    Skills Assessment
+                </span>
+
+                <h2 class="fw-bold mt-2 mb-1">
+                    Test Your Skills
+                </h2>
+
+                <p class="text-muted mb-0">
+                    Complete online assessments and review your results.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- SUMMARY -->
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-4">
+
+                <div class="summary-card">
+
+                    <div class="summary-icon">
+                        <i class="bi bi-clipboard-check"></i>
+                    </div>
+
+                    <div>
+
+                        <div class="summary-value">
+                            @Model.Count
+                        </div>
+
+                        <div class="summary-label">
+                            Available Assessments
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <div class="summary-card">
+
+                    <div class="summary-icon">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+
+                    <div>
+
+                        <div class="summary-value">
+                            @results.Count
+                        </div>
+
+                        <div class="summary-label">
+                            Completed Attempts
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <div class="summary-card">
+
+                    <div class="summary-icon">
+                        <i class="bi bi-trophy"></i>
+                    </div>
+
+                    <div>
+
+                        <div class="summary-value">
+                            @results.Count(r => r.IsPassed)
+                        </div>
+
+                        <div class="summary-label">
+                            Passed
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- AVAILABLE ASSESSMENTS -->
+        <div class="section-header mb-3">
+
+            <div>
+
+                <h5 class="fw-bold mb-1">
+                    Available Assessments
+                </h5>
+
+                <p class="text-muted small mb-0">
+                    Choose an assessment to test your knowledge.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        @if (Model.Any())
+        {
+            <div class="row g-4">
+
+                @foreach (var assessment in Model)
+                {
+                    var latestResult = results
+                    .Where(r =>
+                    r.SkillAssessmentId ==
+                    assessment.SkillAssessmentId)
+                    .OrderByDescending(r => r.CompletedDate)
+                    .FirstOrDefault();
+
+                    <div class="col-md-6 col-xl-4">
+
+                        <div class="assessment-card">
+
+                            <div class="assessment-top">
+
+                                <div class="assessment-icon">
+
+                                    @if (assessment.SkillName == "C#")
+                                    {
+                                        <span>C#</span>
+                                    }
+                                    else if (assessment.SkillName == "SQL")
+                                    {
+                                        <i class="bi bi-database"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-code-slash"></i>
+                                    }
+
+                                </div>
+
+                                @if (latestResult != null)
+                                {
+                                    if (latestResult.IsPassed)
+                                    {
+                                        <span class="result-badge passed">
+                                            <i class="bi bi-check-circle-fill me-1"></i>
+                                            Passed
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="result-badge failed">
+                                            <i class="bi bi-x-circle-fill me-1"></i>
+                                            Not Passed
+                                        </span>
+                                    }
+                                }
+
+                        </div>
+
+
+                        <h5 class="assessment-title">
+                            @assessment.Title
+                        </h5>
+
+                        <p class="assessment-description">
+                            @(string.IsNullOrWhiteSpace(assessment.Description)
+                                                    ? "Test your knowledge in this skill area."
+                                                    : assessment.Description)
+                    </p>
+
+
+                            <div class="assessment-meta">
+
+                                <div>
+                                    <i class="bi bi-clock me-1"></i>
+                                    @assessment.DurationMinutes min
+                                </div>
+
+                                <div>
+                                    <i class="bi bi-bullseye me-1"></i>
+                                    @assessment.PassingScore% to pass
+                                </div>
+
+                            </div>
+
+
+                    @if (latestResult != null)
+                            {
+                                <div class="latest-result">
+
+                                    <span>
+                                        Latest Score
+                                    </span>
+
+                                    <strong>
+                                        @latestResult.Score%
+                                    </strong>
+
+                                </div>
+                            }
+
+
+                            <div class="assessment-footer">
+
+                                <a asp-action="StartAssessment"
+                                   asp-route-id="@assessment.SkillAssessmentId"
+                                   class="btn btn-primary w-100">
+
+                                    @if (latestResult == null)
+                                    {
+                                        <span>
+                                            <i class="bi bi-play-fill me-1"></i>
+                                            Start Assessment
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span>
+                                            <i class="bi bi-arrow-repeat me-1"></i>
+                                            Retake Assessment
+                                        </span>
+                                    }
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    <i class="bi bi-clipboard-check"></i>
+                </div>
+
+                <h5 class="fw-bold mt-3">
+                    No Assessments Available
+                </h5>
+
+                <p class="text-muted mb-0">
+                    There are currently no active skills assessments.
+                </p>
+
+            </div>
+        }
+
+
+        <!-- HISTORY -->
+        @if (results.Any())
+        {
+            <div class="history-section mt-5">
+
+                <div class="section-header mb-3">
+
+                    <div>
+                        <h5 class="fw-bold mb-1">
+                            Recent Results
+                        </h5>
+
+                        <p class="text-muted small mb-0">
+                            Your latest assessment attempts.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="history-card">
+
+                    @foreach (var result in results.Take(5))
+                    {
+                        var assessment = Model
+                        .FirstOrDefault(a =>
+                        a.SkillAssessmentId ==
+                        result.SkillAssessmentId);
+
+                        <div class="history-row">
+
+                            <div>
+
+                                <div class="fw-semibold">
+                                    @(assessment?.Title
+                                                                ?? "Assessment")
+                        </div>
+
+                                <div class="text-muted small">
+                                    @result.CompletedDate.ToString("dd MMM yyyy")
+                                </div>
+
+                            </div>
+
+
+                            <div class="history-right">
+
+                                <strong>
+                                    @result.Score%
+                                </strong>
+
+                        @if (result.IsPassed)
+                                {
+                                    <span class="result-badge passed">
+                                        Passed
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="result-badge failed">
+                                        Not Passed
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
+
+<style>
+
+    .assessment-page {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .page-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 11px;
+        border-radius: 20px;
+        background: #eaf1ff;
+        color: #2563eb;
+        font-size: .78rem;
+        font-weight: 600;
+    }
+
+    .summary-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        height: 100%;
+        padding: 18px;
+        background: white;
+        border: 1px solid #edf0f4;
+        border-radius: 14px;
+        box-shadow: 0 3px 12px rgba(15, 23, 42, .03);
+    }
+
+    .summary-icon {
+        width: 44px;
+        height: 44px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #eef4ff;
+        color: #2563eb;
+        font-size: 18px;
+    }
+
+    .summary-value {
+        color: #1e293b;
+        font-size: 1.35rem;
+        font-weight: 700;
+        line-height: 1.1;
+    }
+
+    .summary-label {
+        margin-top: 3px;
+        color: #64748b;
+        font-size: .8rem;
+    }
+
+    .assessment-card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 22px;
+        background: white;
+        border: 1px solid #e8edf3;
+        border-radius: 16px;
+        transition: .2s ease;
+    }
+
+        .assessment-card:hover {
+            transform: translateY(-3px);
+            border-color: #d5deeb;
+            box-shadow: 0 9px 25px rgba(15, 23, 42, .06);
+        }
+
+    .assessment-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 18px;
+    }
+
+    .assessment-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 13px;
+        background: #eef4ff;
+        color: #2563eb;
+        font-weight: 700;
+        font-size: 17px;
+    }
+
+    .assessment-title {
+        color: #1e293b;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .assessment-description {
+        min-height: 48px;
+        color: #64748b;
+        font-size: .84rem;
+        line-height: 1.6;
+    }
+
+    .assessment-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 10px;
+        color: #64748b;
+        font-size: .76rem;
+    }
+
+    .latest-result {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 18px;
+        padding: 11px 13px;
+        background: #f8fafc;
+        border-radius: 10px;
+        color: #64748b;
+        font-size: .78rem;
+    }
+
+        .latest-result strong {
+            color: #2563eb;
+            font-size: .95rem;
+        }
+
+    .assessment-footer {
+        margin-top: auto;
+        padding-top: 20px;
+    }
+
+        .assessment-footer .btn {
+            border-radius: 9px;
+            font-size: .85rem;
+            font-weight: 600;
+            padding: 9px;
+        }
+
+    .result-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 9px;
+        border-radius: 20px;
+        font-size: .7rem;
+        font-weight: 600;
+    }
+
+        .result-badge.passed {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .result-badge.failed {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+    .history-card {
+        overflow: hidden;
+        background: white;
+        border: 1px solid #edf0f4;
+        border-radius: 14px;
+    }
+
+    .history-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        padding: 15px 18px;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+        .history-row:last-child {
+            border-bottom: none;
+        }
+
+    .history-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+        .history-right strong {
+            color: #1e293b;
+        }
+
+    .empty-state {
+        padding: 60px 20px;
+        text-align: center;
+        background: white;
+        border: 1px dashed #d8e0ea;
+        border-radius: 16px;
+    }
+
+    .empty-icon {
+        width: 55px;
+        height: 55px;
+        margin: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        background: #eef4ff;
+        color: #2563eb;
+        font-size: 21px;
+    }
+
+    @@media (max-width: 767px) {
+
+        .history-row {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .history-right {
+            width: 100%;
+            justify-content: space-between;
+        }
+    }
+
+</style>

@@ -1,0 +1,85 @@
+@model CareerResourceInput
+@{
+    ViewData["Title"] = "Edit Career Resource";
+}
+
+<div class="card border-0 rounded-4 shadow-sm">
+    <div class="card-body p-4">
+        <h4 class="mb-4">Edit Career Resource</h4>
+
+        <form asp-action="Edit" asp-route-id="@Model.CareerResourceId" method="post">
+            <input type="hidden" asp-for="CareerResourceId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label">Title</label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Description" class="text-danger small"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ResourceType" class="form-label">Resource Type</label>
+                    <select asp-for="ResourceType" class="form-select">
+                        <option value="Guide">Guide</option>
+                        <option value="Article">Article</option>
+                        <option value="Video">Video</option>
+                        <option value="LearningMaterial">Learning Material</option>
+                        <option value="InterviewPrep">Interview Preparation</option>
+                    </select>
+                    <span asp-validation-for="ResourceType" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ContentUrl" class="form-label">Content Link (optional)</label>
+                    <input asp-for="ContentUrl" class="form-control" />
+                    <span asp-validation-for="ContentUrl" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="RelatedCategory" class="form-label"></label>
+                    <select asp-for="RelatedCategory" class="form-select">
+                        <option value="">-- No category tag --</option>
+                        <option>Software Development</option>
+                        <option>Data & Analytics</option>
+                        <option>Cybersecurity</option>
+                        <option>Cloud Computing</option>
+                        <option>UI/UX Design</option>
+                        <option>Quality Assurance</option>
+                        <option>Project Management</option>
+                        <option>Other</option>
+                    </select>
+                    <span asp-validation-for="RelatedCategory" class="text-danger small"></span>
+                    <div class="form-text">Matched against a job seeker's Preferred Job Category.</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="RelatedSkill" class="form-label"></label>
+                    <input asp-for="RelatedSkill" class="form-control" placeholder="e.g. JavaScript, Communication" />
+                    <span asp-validation-for="RelatedSkill" class="text-danger small"></span>
+                    <div class="form-text">Matched against Field of Study and required skills of applied jobs.</div>
+                </div>
+            </div>
+
+            <div class="form-check mb-4">
+                <input asp-for="IsPublished" class="form-check-input" />
+                <label asp-for="IsPublished" class="form-check-label">Published (visible to job seekers)</label>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary rounded-pill px-4">Save Changes</button>
+                <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

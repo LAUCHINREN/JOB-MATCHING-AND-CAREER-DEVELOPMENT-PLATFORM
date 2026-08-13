@@ -1,0 +1,63 @@
+@model List<AssessmentQuestion>
+@{
+    var assessment = (SkillAssessment)ViewBag.Assessment;
+    ViewData["Title"] = $"Questions — {assessment.Title}";
+}
+
+<div class="d-flex justify-content-between align-items-center bg-white rounded-4 shadow-sm p-3 mb-4">
+    <div>
+        <h4 class="mb-0">@assessment.Title</h4>
+        <span class="text-muted small">@assessment.SkillName · Passing score @assessment.PassingScore% · @assessment.DurationMinutes min</span>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="CreateQuestion" asp-route-id="@assessment.SkillAssessmentId" class="btn btn-primary rounded-pill px-4">+ Add Question</a>
+        <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">Back to Assessments</a>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning border text-center rounded-4">
+        This assessment has no questions yet. Job seekers won't be able to take it until you add at least one.
+    </div>
+}
+else
+{
+    <div class="d-flex flex-column gap-3">
+        @foreach (var question in Model)
+        {
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <p class="fw-semibold mb-3">@question.QuestionText</p>
+                        <div class="d-flex gap-2 flex-shrink-0 ms-3">
+                            <a asp-action="EditQuestion" asp-route-id="@question.AssessmentQuestionId" class="btn btn-outline-secondary btn-sm rounded-pill">Edit</a>
+                            <form asp-action="DeleteQuestion" asp-route-id="@question.AssessmentQuestionId" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill" onclick="return confirm('Delete this question?');">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="row g-2 small">
+                        <div class="col-md-6">
+                            <span class="badge rounded-pill @(question.CorrectAnswer == "A" ? "bg-success-subtle text-success-emphasis" : "bg-light text-dark border")">A</span>
+                            @question.OptionA
+                        </div>
+                        <div class="col-md-6">
+                            <span class="badge rounded-pill @(question.CorrectAnswer == "B" ? "bg-success-subtle text-success-emphasis" : "bg-light text-dark border")">B</span>
+                            @question.OptionB
+                        </div>
+                        <div class="col-md-6">
+                            <span class="badge rounded-pill @(question.CorrectAnswer == "C" ? "bg-success-subtle text-success-emphasis" : "bg-light text-dark border")">C</span>
+                            @question.OptionC
+                        </div>
+                        <div class="col-md-6">
+                            <span class="badge rounded-pill @(question.CorrectAnswer == "D" ? "bg-success-subtle text-success-emphasis" : "bg-light text-dark border")">D</span>
+                            @question.OptionD
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

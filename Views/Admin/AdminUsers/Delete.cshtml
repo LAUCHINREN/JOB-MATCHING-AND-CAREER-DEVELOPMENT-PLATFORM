@@ -1,0 +1,84 @@
+﻿@model JobCareerPlatform.Models.Admin.AdminAccountActionViewModel
+
+@{
+    ViewData["Title"] = "Deactivate User";
+    Layout = "_AdminLayout";
+}
+
+<div class="mb-4">
+
+    <a asp-action="Details"
+       asp-route-id="@Model.UserId"
+       class="text-decoration-none">
+        ← Back to User Details
+    </a>
+
+</div>
+
+<div class="admin-panel">
+
+    <h3 class="fw-bold">
+        Deactivate User Account?
+    </h3>
+
+    <p class="text-muted">
+        The user will no longer be able to log in,
+        but their historical records will remain available.
+    </p>
+
+    <div class="alert alert-warning mt-4">
+
+        <strong>@Model.UserName</strong><br />
+        @Model.Email
+
+    </div>
+
+    <form asp-action="Delete"
+          method="post">
+
+        <input asp-for="UserId"
+               type="hidden" />
+
+        <input asp-for="UserName"
+               type="hidden" />
+
+        <input asp-for="Email"
+               type="hidden" />
+
+        <div class="mb-4">
+
+            <label asp-for="Reason"
+                   class="form-label fw-semibold"></label>
+
+            <textarea asp-for="Reason"
+                      class="form-control"
+                      rows="4"
+                      placeholder="Enter the reason for deactivating this account..."></textarea>
+
+            <span asp-validation-for="Reason"
+                  class="text-danger"></span>
+
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+
+            <a asp-action="Details"
+               asp-route-id="@Model.UserId"
+               class="btn btn-outline-secondary">
+                Cancel
+            </a>
+
+            <button type="submit"
+                    class="btn btn-danger">
+                Confirm Deactivation
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

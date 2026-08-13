@@ -1,0 +1,43 @@
+@using Microsoft.AspNetCore.Identity
+@using JobCareerPlatform.Data
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    var currentUser = await UserManager.GetUserAsync(User);
+
+    if (currentUser?.UserRole == "Job Seeker")
+    {
+        Layout = "/Views/JobSeeker/_JobSeekerLayout.cshtml";
+    }
+    else if (currentUser?.UserRole == "Employer")
+    {
+        Layout = "/Views/Employer/_EmployerLayout.cshtml";
+    }
+    else if (currentUser?.UserRole == "Career Advisor")
+    {
+        Layout = "/Views/CareerAdvisor/_CareerAdvisorLayout.cshtml";
+    }
+    else
+    {
+        Layout = "/Views/Shared/_Layout.cshtml";
+    }
+}
+
+<h1>Manage your account</h1>
+
+<div>
+    <h2>Change your account settings</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-3">
+            <partial name="_ManageNav" />
+        </div>
+        <div class="col-md-9">
+            @RenderBody()
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}

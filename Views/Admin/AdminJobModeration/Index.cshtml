@@ -1,0 +1,245 @@
+﻿@model IEnumerable<JobCareerPlatform.Models.JobPosting>
+
+@{
+    ViewData["Title"] = "Job Moderation";
+    Layout = "_AdminLayout";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="mb-4">
+
+    <h3 class="fw-bold mb-1">
+        Job Posting Moderation
+    </h3>
+
+    <p class="text-muted mb-0">
+        Review and moderate job vacancies submitted by employers.
+    </p>
+
+</div>
+
+
+<!-- FILTER -->
+<div class="admin-panel mb-4">
+
+    <form method="get">
+
+        <div class="row g-3">
+
+            <div class="col-lg-4">
+
+                <label class="form-label">
+                    Search
+                </label>
+
+                <input type="text"
+                       name="search"
+                       value="@ViewBag.Search"
+                       class="form-control"
+                       placeholder="Search job or employer..." />
+
+            </div>
+
+
+            <div class="col-lg-2">
+
+                <label class="form-label">
+                    Status
+                </label>
+
+                <select name="status"
+                        class="form-select">
+
+                    <option value=""
+                            selected="@(string.IsNullOrEmpty(ViewBag.Status) ? "selected" : null)">
+                        All Status
+                    </option>
+
+                    <option value="Pending"
+                            selected="@(ViewBag.Status == "Pending" ? "selected" : null)">
+                        Pending
+                    </option>
+
+                    <option value="Approved"
+                            selected="@(ViewBag.Status == "Approved" ? "selected" : null)">
+                        Approved
+                    </option>
+
+                    <option value="Rejected"
+                            selected="@(ViewBag.Status == "Rejected" ? "selected" : null)">
+                        Rejected
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="col-lg-3">
+
+                <label class="form-label">
+                    Job Category
+                </label>
+
+                <select name="categoryId"
+                        class="form-select">
+
+                    <option value="">
+                        All Categories
+                    </option>
+
+                    @foreach (var category in ViewBag.Categories)
+                    {
+                        <option value="@category.CategoryId"
+                                selected="@(ViewBag.CategoryId != null &&
+                                                                    (int)ViewBag.CategoryId == category.CategoryId
+                                                                    ? "selected"
+                                                                    : null)">
+
+                        @category.CategoryName
+
+                        </option>
+                                        }
+
+                </select>
+
+            </div>
+
+
+            <div class="col-lg-3 d-flex align-items-end gap-2">
+
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary flex-fill">
+                    Reset
+                </a>
+                
+                <button type="submit"
+                        class="btn btn-primary flex-fill">
+                    Search
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+<div class="admin-panel">
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+                <tr>
+                    <th>Job</th>
+                    <th>Employer</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6"
+                            class="text-center text-muted py-5">
+                            No job postings found.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var job in Model)
+                    {
+                        <tr>
+
+                            <td>
+                                <div class="fw-semibold">
+                                    @job.JobTitle
+                                </div>
+
+                                <small class="text-muted">
+                                    @job.Location
+                                </small>
+                            </td>
+
+                            <td>
+                                @(job.Employer?.FullName
+                                                        ?? "Unknown Employer")
+                                                                          </td>
+
+                            <td>
+                                @(job.JobCategory?.CategoryName
+                                                        ?? "No Category")
+                    </td>
+
+                            <td>
+
+                                @if (job.ModerationStatus == "Pending")
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                Pending
+                                            </span>
+                                        }
+                                        else if (job.ModerationStatus == "Approved")
+                                        {
+                                            <span class="badge bg-success">
+                                                Approved
+                                            </span>
+                                        }
+                                        else if (job.ModerationStatus == "Rejected")
+                                        {
+                                            <span class="badge bg-danger">
+                                                Rejected
+                                            </span>
+                                        }
+
+                                </td>
+
+                            <td>
+                            @(job.CreatedAt
+                                 .ToLocalTime()
+                                 .ToString("dd/MMM/yyyy"))
+                            </td>
+
+                            <td class="text-end">
+
+                                <a asp-action="Details"
+                                   asp-route-id="@job.JobId"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Review
+                                </a>
+
+                            </td>
+
+                        </tr>
+                    }
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

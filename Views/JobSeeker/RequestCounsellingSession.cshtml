@@ -1,0 +1,56 @@
+@model JobCareerPlatform.Models.CounsellingSessionRequestInput
+
+@{
+    Layout = "_JobSeekerLayout";
+    ViewData["Title"] = "Request a Counselling Session";
+}
+
+<div class="py-3" style="width:100%;max-width:700px;margin:0 auto;">
+
+    <div class="mb-4">
+        <span class="badge rounded-pill" style="background:#eaf1ff;color:#2563eb;">
+            <i class="bi bi-mortarboard me-1"></i> Career Guidance
+        </span>
+        <h2 class="fw-bold mb-1 mt-2">Request a Counselling Session</h2>
+        <p class="text-muted mb-0">
+            Tell us when you'd like to talk and why — a career advisor will review your request and
+            approve or reject it.
+        </p>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+            <form asp-action="RequestCounsellingSession" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ScheduledAt" class="form-label">Preferred Date &amp; Time</label>
+                        <input asp-for="ScheduledAt" class="form-control" type="datetime-local" />
+                        <span asp-validation-for="ScheduledAt" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DurationMinutes" class="form-label">Duration (minutes)</label>
+                        <input asp-for="DurationMinutes" class="form-control" type="number" min="15" max="240" />
+                        <span asp-validation-for="DurationMinutes" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Notes" class="form-label"></label>
+                    <textarea asp-for="Notes" class="form-control" rows="4" placeholder="e.g. I'd like help preparing for upcoming interviews."></textarea>
+                    <span asp-validation-for="Notes" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Submit Request</button>
+                    <a asp-action="MyCounsellingSessions" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

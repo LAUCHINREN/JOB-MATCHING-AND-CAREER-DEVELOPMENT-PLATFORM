@@ -1,0 +1,87 @@
+@model List<JobCareerPlatform.Models.CounsellingSession>
+
+@{
+    Layout = "_JobSeekerLayout";
+    ViewData["Title"] = "My Counselling Sessions";
+}
+
+<div class="py-3" style="width:100%;max-width:1400px;margin:0 auto;">
+
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+        <div>
+            <span class="badge rounded-pill" style="background:#eaf1ff;color:#2563eb;">
+                <i class="bi bi-mortarboard me-1"></i> Career Guidance
+            </span>
+            <h2 class="fw-bold mb-1 mt-2">My Counselling Sessions</h2>
+            <p class="text-muted mb-0">Apply for a session and track its status here.</p>
+        </div>
+        <a asp-action="RequestCounsellingSession" class="btn btn-primary rounded-pill px-4 align-self-center">+ Request a Session</a>
+    </div>
+
+    <partial name="_CareerGuidanceSubNav" />
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="text-center border rounded-4 p-5 text-muted" style="border-style:dashed !important;">
+            You haven't requested a counselling session yet.
+        </div>
+    }
+    else
+    {
+        <div class="d-flex flex-column gap-3">
+            @foreach (var session in Model)
+            {
+                var badgeClass = session.Status switch
+                {
+                    "Approved" => "bg-primary-subtle text-primary-emphasis",
+                    "Completed" => "bg-success-subtle text-success-emphasis",
+                    "Rejected" => "bg-danger-subtle text-danger-emphasis",
+                    "Cancelled" => "bg-secondary-subtle text-secondary-emphasis",
+                    _ => "bg-warning-subtle text-warning-emphasis"
+                };
+
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="badge rounded-pill @badgeClass mb-2">@session.Status</span>
+                            <h5 class="mb-1">@session.ScheduledAt.ToString("d MMM yyyy, h:mm tt")</h5>
+                            <div class="text-muted small">Duration: @session.DurationMinutes minutes</div>
+                            @if (!string.IsNullOrWhiteSpace(session.Notes))
+                            {
+                                <div class="text-muted small mt-2"><strong>Reason:</strong> @session.Notes</div>
+                            }
+                            @if (session.Status == "Rejected" && !string.IsNullOrWhiteSpace(session.RejectionNote))
+                            {
+                                <div class="small text-danger mt-2"><strong>Advisor's note:</strong> @session.RejectionNote</div>
+                            }
+                        </div>
+                        <div class="text-end">
+                            @if ((session.Status == "Approved" || session.Status == "Completed") && !string.IsNullOrWhiteSpace(session.MeetingLink))
+                            {
+                                <a href="@session.MeetingLink" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm rounded-pill">
+                                    <i class="bi bi-camera-video me-1"></i>Join Meeting
+                                </a>
+                            }
+                            @if (session.Status == "Pending")
+                            {
+                                <form asp-action="WithdrawCounsellingSession" asp-route-id="@session.CounsellingSessionId" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill" onclick="return confirm('Withdraw this request?');">Withdraw</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

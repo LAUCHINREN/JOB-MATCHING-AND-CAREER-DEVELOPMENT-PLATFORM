@@ -1,0 +1,111 @@
+﻿@model JobCareerPlatform.Models.Admin.AdminJobCategoryViewModel
+
+@{
+    ViewData["Title"] = "Create Job Category";
+    Layout = "_AdminLayout";
+}
+
+<div class="mb-4">
+
+    <a asp-action="Index"
+       class="text-decoration-none">
+        ← Back to Job Categories
+    </a>
+
+    <h3 class="fw-bold mt-3 mb-1">
+        Create Job Category
+    </h3>
+
+    <p class="text-muted">
+        Add a new category for organizing job opportunities.
+    </p>
+
+</div>
+
+<div class="admin-panel">
+
+    <form asp-action="Create"
+          method="post">
+
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger"></div>
+
+        <div class="row g-4">
+
+            <div class="col-md-6">
+
+                <label asp-for="CategoryName"
+                       class="form-label"></label>
+
+                <input asp-for="CategoryName"
+                       class="form-control"
+                       placeholder="e.g. Software Development" />
+
+                <span asp-validation-for="CategoryName"
+                      class="text-danger"></span>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <label asp-for="ParentCategoryId"
+                       class="form-label"></label>
+
+                <select asp-for="ParentCategoryId"
+                        class="form-select">
+
+                    <option value="">
+                        No Parent Category
+                    </option>
+
+                    @foreach (var category in ViewBag.ParentCategories)
+                    {
+                        <option value="@category.CategoryId">
+                            @category.CategoryName
+                        </option>
+                    }
+
+                </select>
+
+            </div>
+
+            <div class="col-12">
+
+                <label asp-for="Description"
+                       class="form-label"></label>
+
+                <textarea asp-for="Description"
+                          class="form-control"
+                          rows="4"
+                          placeholder="Describe this job category..."></textarea>
+
+                <span asp-validation-for="Description"
+                      class="text-danger"></span>
+
+            </div>
+
+        </div>
+
+        <hr class="my-4" />
+
+        <div class="d-flex justify-content-end gap-2">
+
+            <a asp-action="Index"
+               class="btn btn-outline-secondary">
+                Cancel
+            </a>
+
+            <button type="submit"
+                    class="btn btn-primary px-4">
+                Create Category
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

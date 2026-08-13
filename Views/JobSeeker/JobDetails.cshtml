@@ -1,0 +1,435 @@
+﻿@model JobCareerPlatform.Models.JobPosting
+
+@{
+    Layout = "_JobSeekerLayout";
+    ViewData["Title"] = "Job Details";
+}
+
+<div class="py-3">
+
+    <div class="job-details-page">
+
+        <!-- Back -->
+        <div class="mb-3">
+            <a asp-action="Jobs"
+               class="back-link">
+                <i class="bi bi-arrow-left me-1"></i>
+                Back to Jobs
+            </a>
+        </div>
+
+
+        <div class="row g-4">
+
+            <!-- Main Job Information -->
+            <div class="col-lg-8">
+
+                <div class="card border-0 shadow-sm job-main-card">
+
+                    <!-- Header -->
+                    <div class="job-detail-header">
+
+                        <div class="company-logo">
+                            <i class="bi bi-building"></i>
+                        </div>
+
+                        <div class="flex-grow-1">
+
+                            <h2 class="fw-bold mb-1">
+                                @Model.JobTitle
+                            </h2>
+
+                            <div class="company-name">
+                                @(Model.Employer?.FullName ?? "Unknown Employer")
+                            </div>
+
+                            <div class="job-meta mt-3">
+
+                                <span>
+                                    <i class="bi bi-geo-alt me-1"></i>
+                                    @Model.Location
+                                </span>
+
+                                @if (!string.IsNullOrWhiteSpace(Model.EmploymentType))
+                                {
+                                    <span>
+                                        <i class="bi bi-briefcase me-1"></i>
+                                        @Model.EmploymentType
+                                    </span>
+                                }
+
+                                <span>
+                                    <i class="bi bi-grid me-1"></i>
+                                    @(Model.JobCategory?.CategoryName ?? "Uncategorized")
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <hr />
+
+
+                    <!-- Description -->
+                    <div class="job-section">
+
+                        <h5 class="section-title">
+                            About This Job
+                        </h5>
+
+                        <p class="job-description">
+                            @(string.IsNullOrWhiteSpace(Model.JobDescription)
+                                                        ? "No job description provided."
+                                                        : Model.JobDescription)
+                        </p>
+
+                    </div>
+
+
+                    <!-- Skills -->
+                    @if (!string.IsNullOrWhiteSpace(Model.RequiredSkills))
+                    {
+                        <div class="job-section">
+
+                            <h5 class="section-title">
+                                Required Skills
+                            </h5>
+
+                            <div class="skill-tags">
+
+                                @foreach (var skill in Model.RequiredSkills.Split(','))
+                                {
+                                    <span class="skill-tag">
+                                        @skill.Trim()
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+
+            <!-- Right Sidebar -->
+            <div class="col-lg-4">
+
+                <div class="card border-0 shadow-sm apply-card">
+
+                    <div class="card-body">
+
+                        <h5 class="fw-bold mb-3">
+                            Job Summary
+                        </h5>
+
+
+                        <div class="summary-item">
+
+                            <div class="summary-icon">
+                                <i class="bi bi-cash-stack"></i>
+                            </div>
+
+                            <div>
+                                <div class="summary-label">
+                                    Salary
+                                </div>
+
+                                <div class="summary-value">
+
+                                    @if (Model.SalaryMin.HasValue &&
+                                                                        Model.SalaryMax.HasValue)
+                                    {
+                                        <span>
+                                            RM @Model.SalaryMin.Value.ToString("N0")
+                                            -
+                                            RM @Model.SalaryMax.Value.ToString("N0")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span>
+                                            Not specified
+                                        </span>
+                                    }
+
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="summary-item">
+
+                            <div class="summary-icon">
+                                <i class="bi bi-geo-alt"></i>
+                            </div>
+
+                            <div>
+                                <div class="summary-label">
+                                    Location
+                                </div>
+
+                                <div class="summary-value">
+                                    @Model.Location
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="summary-item">
+
+                            <div class="summary-icon">
+                                <i class="bi bi-briefcase"></i>
+                            </div>
+
+                            <div>
+                                <div class="summary-label">
+                                    Employment Type
+                                </div>
+
+                                <div class="summary-value">
+                                    @(string.IsNullOrWhiteSpace(Model.EmploymentType)
+                                                                        ? "Not specified"
+                                                                        : Model.EmploymentType)
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="summary-item">
+
+                            <div class="summary-icon">
+                                <i class="bi bi-grid"></i>
+                            </div>
+
+                            <div>
+                                <div class="summary-label">
+                                    Category
+                                </div>
+
+                                <div class="summary-value">
+                                    @(Model.JobCategory?.CategoryName ?? "Uncategorized")
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <hr class="my-4" />
+
+
+                        @if (ViewBag.AlreadyApplied == true)
+                        {
+                            <button type="button"
+                                    class="btn btn-success w-100 apply-button"
+                                    disabled>
+
+                                <i class="bi bi-check-circle-fill me-1"></i>
+                                Already Applied
+
+                            </button>
+
+                            <a asp-action="Applications"
+                               class="btn btn-outline-primary w-100 mt-2">
+
+                                <i class="bi bi-file-earmark-text me-1"></i>
+                                View My Applications
+
+                            </a>
+
+                            <p class="text-success text-center small mt-3 mb-0">
+                                You have already applied for this position.
+                            </p>
+                        }
+                        else
+                        {
+                            <a asp-action="ApplyJob"
+                               asp-route-id="@Model.JobId"
+                               class="btn btn-primary w-100 apply-button">
+
+                                <i class="bi bi-send me-1"></i>
+                                Apply for This Job
+
+                            </a>
+
+                            <p class="text-muted text-center small mt-3 mb-0">
+                                Review the job details before applying.
+                            </p>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+    .job-details-page {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        color: #64748b;
+        text-decoration: none;
+        font-size: .88rem;
+        font-weight: 500;
+    }
+
+        .back-link:hover {
+            color: #2563eb;
+        }
+
+    .job-main-card,
+    .apply-card {
+        border-radius: 16px;
+    }
+
+    .job-main-card {
+        padding: 28px;
+    }
+
+    .job-detail-header {
+        display: flex;
+        gap: 18px;
+        align-items: flex-start;
+    }
+
+    .company-logo {
+        width: 58px;
+        height: 58px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 15px;
+        background: #eef4ff;
+        color: #2563eb;
+        font-size: 22px;
+    }
+
+    .company-name {
+        color: #64748b;
+        font-size: .95rem;
+        font-weight: 500;
+    }
+
+    .job-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        color: #64748b;
+        font-size: .85rem;
+    }
+
+    .job-section {
+        margin-top: 28px;
+    }
+
+    .section-title {
+        font-weight: 700;
+        margin-bottom: 14px;
+    }
+
+    .job-description {
+        color: #475569;
+        line-height: 1.75;
+        white-space: pre-line;
+    }
+
+    .skill-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .skill-tag {
+        padding: 6px 11px;
+        border-radius: 20px;
+        background: #eef4ff;
+        color: #2563eb;
+        font-size: .78rem;
+        font-weight: 600;
+    }
+
+    .apply-card {
+        position: sticky;
+        top: 85px;
+    }
+
+        .apply-card .card-body {
+            padding: 24px;
+        }
+
+    .summary-item {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 12px 0;
+    }
+
+    .summary-icon {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #eef4ff;
+        color: #2563eb;
+    }
+
+    .summary-label {
+        color: #64748b;
+        font-size: .75rem;
+    }
+
+    .summary-value {
+        color: #1e293b;
+        font-size: .9rem;
+        font-weight: 600;
+    }
+
+    .apply-button {
+        border-radius: 10px;
+        padding: 11px;
+        font-weight: 600;
+    }
+
+    @@media (max-width: 991px) {
+
+        .apply-card {
+            position: static;
+        }
+    }
+
+    @@media (max-width: 767px) {
+
+        .job-main-card {
+            padding: 20px;
+        }
+
+        .job-detail-header {
+            flex-direction: column;
+        }
+    }
+
+</style>

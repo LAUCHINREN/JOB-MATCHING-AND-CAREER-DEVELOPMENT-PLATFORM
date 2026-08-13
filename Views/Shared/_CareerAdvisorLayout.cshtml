@@ -1,0 +1,130 @@
+@using Microsoft.AspNetCore.Identity
+@using JobCareerPlatform.Data
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    string currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentUser = await UserManager.GetUserAsync(User);
+
+    var initials = "CA";
+    if (!string.IsNullOrWhiteSpace(currentUser?.FullName))
+    {
+        var parts = currentUser.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        initials = parts.Length >= 2
+            ? $"{parts[0][0]}{parts[^1][0]}".ToUpper()
+            : parts[0][0].ToString().ToUpper();
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - JobCareerPlatform</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/career-advisor.css" asp-append-version="true" />
+</head>
+<body class="ca-theme ca-body">
+
+    <div class="ca-wrapper">
+
+        <aside class="ca-sidebar">
+
+            <a class="ca-brand" asp-controller="CareerAdvisorDashboard" asp-action="Index">
+                <div class="ca-brand-logo"><i class="bi bi-mortarboard-fill"></i></div>
+                <div>
+                    <div class="ca-brand-name">JobCareerPlatform</div>
+                    <div class="ca-brand-subtitle">Career Advisory</div>
+                </div>
+            </a>
+
+            <div class="ca-sidebar-label">Guidance</div>
+
+            <nav class="ca-nav">
+                <a class="ca-nav-link @(currentController == "CareerAdvisorDashboard" ? "active" : "")"
+                   asp-controller="CareerAdvisorDashboard" asp-action="Index">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a class="ca-nav-link @(currentController == "CareerResources" ? "active" : "")"
+                   asp-controller="CareerResources" asp-action="Index">
+                    <i class="bi bi-journal-bookmark"></i> Career Resources
+                </a>
+                <a class="ca-nav-link @(currentController == "SkillAssessments" ? "active" : "")"
+                   asp-controller="SkillAssessments" asp-action="Index">
+                    <i class="bi bi-clipboard-check"></i> Skill Assessments
+                </a>
+                <a class="ca-nav-link @(currentController == "JobSeekerReview" ? "active" : "")"
+                   asp-controller="JobSeekerReview" asp-action="Index">
+                    <i class="bi bi-people"></i> Job Seekers
+                </a>
+                <a class="ca-nav-link @(currentController == "Recommendations" ? "active" : "")"
+                   asp-controller="Recommendations" asp-action="Index">
+                    <i class="bi bi-stars"></i> Recommendations
+                </a>
+                <a class="ca-nav-link @(currentController == "CounsellingSessions" ? "active" : "")"
+                   asp-controller="CounsellingSessions" asp-action="Index">
+                    <i class="bi bi-calendar2-week"></i> Counselling Sessions
+                </a>
+            </nav>
+
+            <div class="ca-sidebar-footer">
+                <div class="ca-profile">
+                    <div class="ca-avatar">@initials</div>
+                    <div>
+                        <div class="ca-profile-name">@(currentUser?.FullName ?? "Career Advisor")</div>
+                        <div class="ca-profile-role">Career Advisor</div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a asp-area="Identity" asp-page="/Account/Manage/Index" class="ca-logout-button text-decoration-none" style="flex:1;">
+                        <i class="bi bi-person-gear"></i> Account
+                    </a>
+                </div>
+                <form asp-area="Identity" asp-page="/Account/Logout"
+                      asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
+                      method="post" class="mt-2">
+                    <button type="submit" class="ca-logout-button">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </button>
+                </form>
+            </div>
+
+        </aside>
+
+        <main class="ca-main">
+
+            <header class="ca-topbar">
+                <h5 class="ca-topbar-title">@ViewData["Title"]</h5>
+                <span class="ca-topbar-badge"><i class="bi bi-mortarboard"></i> Career Advisor</span>
+            </header>
+
+            <div class="ca-content">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        @TempData["SuccessMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        @TempData["ErrorMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @RenderBody()
+            </div>
+
+        </main>
+
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

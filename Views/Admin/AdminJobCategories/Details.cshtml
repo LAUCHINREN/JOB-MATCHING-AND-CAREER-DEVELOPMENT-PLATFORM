@@ -1,0 +1,210 @@
+﻿@model JobCareerPlatform.Models.Admin.JobCategory
+
+@{
+    ViewData["Title"] = "Category Details";
+    Layout = "_AdminLayout";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+
+    <div>
+
+        <a asp-action="Index"
+           class="text-decoration-none">
+            ← Back to Job Categories
+        </a>
+
+        <h3 class="fw-bold mt-3 mb-1">
+            Category Details
+        </h3>
+
+        <p class="text-muted mb-0">
+            View and manage this job category.
+        </p>
+
+    </div>
+
+    <a asp-action="Edit"
+       asp-route-id="@Model.CategoryId"
+       class="btn btn-primary">
+        Edit Category
+    </a>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-lg-8">
+
+        <div class="admin-panel">
+
+            <h4 class="fw-bold mb-4">
+                @Model.CategoryName
+            </h4>
+
+            <div class="row">
+
+                <div class="col-md-6 mb-4">
+
+                    <small class="text-muted">
+                        STATUS
+                    </small>
+
+                    <div class="mt-1">
+
+                        @if (Model.CategoryStatus == "Active")
+                        {
+                            <span class="badge bg-success">
+                                Active
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">
+                                Inactive
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 mb-4">
+
+                    <small class="text-muted">
+                        PARENT CATEGORY
+                    </small>
+
+                    <div class="fw-semibold mt-1">
+
+                        @(Model.ParentCategory?.CategoryName
+                                                ?? "Main Category")
+
+                    </div>
+
+                </div>
+
+                <div class="col-12 mb-4">
+
+                    <small class="text-muted">
+                        DESCRIPTION
+                    </small>
+
+                    <div class="mt-1">
+
+                        @(string.IsNullOrWhiteSpace(Model.Description)
+                                                ? "No description provided."
+                                                : Model.Description)
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <small class="text-muted">
+                        CREATED
+                    </small>
+
+                    <div class="fw-semibold mt-1">
+
+                        @(Model.CreatedAt
+                            .ToLocalTime()
+                            .ToString("dd MMM yyyy, hh:mm tt"))
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <small class="text-muted">
+                        SUBCATEGORIES
+                    </small>
+
+                    <div class="fw-semibold mt-1">
+                        @Model.SubCategories.Count
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-4">
+
+        <div class="admin-panel">
+
+            <h5 class="mb-3">
+                Category Actions
+            </h5>
+
+            @if (Model.CategoryStatus == "Active")
+            {
+                <form asp-action="Deactivate"
+                      method="post"
+                      class="mb-2">
+
+                    <input type="hidden"
+                           name="id"
+                           value="@Model.CategoryId" />
+
+                    <button type="submit"
+                            class="btn btn-warning w-100">
+
+                        Deactivate Category
+
+                    </button>
+
+                </form>
+            }
+            else
+            {
+                <form asp-action="Reactivate"
+                      method="post"
+                      class="mb-2">
+
+                    <input type="hidden"
+                           name="id"
+                           value="@Model.CategoryId" />
+
+                    <button type="submit"
+                            class="btn btn-success w-100">
+
+                        Reactivate Category
+
+                    </button>
+
+                </form>
+            }
+
+            <a asp-action="Delete"
+               asp-route-id="@Model.CategoryId"
+               class="btn btn-outline-danger w-100">
+
+                Delete Category
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>

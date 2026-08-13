@@ -1,0 +1,275 @@
+﻿@model JobCareerPlatform.Models.AddSkillsViewModel
+
+@{
+    Layout = "_JobSeekerLayout";
+    ViewData["Title"] = "Add Skills";
+}
+
+<div class="py-4">
+
+    <div class="mx-auto" style="max-width: 850px;">
+
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4 p-md-5">
+
+                <div class="mb-4">
+                    <span class="badge bg-primary-subtle text-primary mb-2">
+                        Career Profile
+                    </span>
+
+                    <h3 class="fw-bold mb-1">
+                        Add Skills
+                    </h3>
+
+                    <p class="text-muted mb-0">
+                        Add one or more skills and select your proficiency level.
+                    </p>
+                </div>
+
+                <form asp-action="AddSkill" method="post">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger">
+                    </div>
+
+                    <div id="skillRows">
+
+                        @for (int i = 0; i < Model.Skills.Count; i++)
+                        {
+                            <div class="skill-row row g-3 mb-3">
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label fw-semibold">
+                                        Skill
+                                    </label>
+
+                                    <input asp-for="Skills[i].SkillName"
+                                           class="form-control"
+                                           placeholder="e.g. C#, SQL Server, AWS" />
+
+                                    <span asp-validation-for="Skills[i].SkillName"
+                                          class="text-danger small">
+                                    </span>
+
+                                </div>
+
+                                <div class="col-md-5">
+
+                                    <label class="form-label fw-semibold">
+                                        Proficiency Level
+                                    </label>
+
+                                    <select asp-for="Skills[i].ProficiencyLevel"
+                                            class="form-select">
+
+                                        <option value="">
+                                            Select proficiency level
+                                        </option>
+
+                                        <option value="Beginner">Beginner</option>
+                                        <option value="Intermediate">Intermediate</option>
+                                        <option value="Advanced">Advanced</option>
+                                        <option value="Expert">Expert</option>
+
+                                    </select>
+
+                                    <span asp-validation-for="Skills[i].ProficiencyLevel"
+                                          class="text-danger small">
+                                    </span>
+
+                                </div>
+
+                                <div class="col-md-1 d-flex align-items-end">
+
+                                    <button type="button"
+                                            class="btn btn-outline-danger remove-skill"
+                                            @(i == 0 ? "disabled" : "")>
+
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+
+                                </div>
+
+                            </div>
+                        }
+
+                    </div>
+
+
+                    <button type="button"
+                            id="addSkillRow"
+                            class="btn btn-outline-primary mt-2">
+
+                        <i class="bi bi-plus-lg me-1"></i>
+                        Add Another Skill
+
+                    </button>
+
+
+                    <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+
+                        <a asp-action="Profile"
+                           class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-primary px-4">
+
+                            <i class="bi bi-check-lg me-1"></i>
+                            Save Skills
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+    .skill-row {
+        padding: 16px;
+        border: 1px solid #edf0f4;
+        border-radius: 12px;
+        background: #fafcff;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 10px;
+    }
+</style>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        let skillIndex = @Model.Skills.Count;
+
+        // Add another skill row
+        document.getElementById("addSkillRow")
+            .addEventListener("click", function () {
+
+                const container = document.getElementById("skillRows");
+
+                const row = document.createElement("div");
+
+                row.className = "skill-row row g-3 mb-3";
+
+                row.innerHTML = `
+                    <div class="col-md-6">
+
+                        <label class="form-label fw-semibold">
+                            Skill
+                        </label>
+
+                        <input name="Skills[${skillIndex}].SkillName"
+                               class="form-control"
+                               placeholder="e.g. Java, Python, AWS" />
+
+                    </div>
+
+                    <div class="col-md-5">
+
+                        <label class="form-label fw-semibold">
+                            Proficiency Level
+                        </label>
+
+                        <select name="Skills[${skillIndex}].ProficiencyLevel"
+                                class="form-select">
+
+                            <option value="">
+                                Select proficiency level
+                            </option>
+
+                            <option value="Beginner">
+                                Beginner
+                            </option>
+
+                            <option value="Intermediate">
+                                Intermediate
+                            </option>
+
+                            <option value="Advanced">
+                                Advanced
+                            </option>
+
+                            <option value="Expert">
+                                Expert
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-1 d-flex align-items-end">
+
+                        <button type="button"
+                                class="btn btn-outline-danger remove-skill">
+                            <i class="bi bi-trash"></i>
+                        </button>
+
+                    </div>
+                `;
+
+                container.appendChild(row);
+
+                skillIndex++;
+            });
+
+
+        // Delete a skill row
+        document.getElementById("skillRows")
+            .addEventListener("click", function (event) {
+
+                const removeButton =
+                    event.target.closest(".remove-skill");
+
+                if (removeButton && !removeButton.disabled) {
+
+                    removeButton
+                        .closest(".skill-row")
+                        .remove();
+
+                    renumberSkillRows();
+                }
+            });
+
+        function renumberSkillRows() {
+
+            const rows =
+                document.querySelectorAll("#skillRows .skill-row");
+
+            rows.forEach((row, index) => {
+
+                const skillInput =
+                    row.querySelector('input[name*=".SkillName"]');
+
+                const levelSelect =
+                    row.querySelector('select[name*=".ProficiencyLevel"]');
+
+                if (skillInput) {
+                    skillInput.name =
+                        `Skills[${index}].SkillName`;
+                }
+
+                if (levelSelect) {
+                    levelSelect.name =
+                        `Skills[${index}].ProficiencyLevel`;
+                }
+            });
+
+            skillIndex = rows.length;
+        }
+    </script>
+}

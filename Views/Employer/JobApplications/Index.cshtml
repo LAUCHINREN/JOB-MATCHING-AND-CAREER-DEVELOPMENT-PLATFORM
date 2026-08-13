@@ -1,0 +1,588 @@
+﻿@model ApplicantDashboardViewModel
+
+@{
+    ViewData["Title"] = "Applicant Tracking";
+    int total = Model.StatusCounts.Values.Sum();
+    int GetCount(string key) => Model.StatusCounts.GetValueOrDefault(key, 0);
+    string[] activeStatuses = { "Submitted", "Under Review", "Shortlisted", "Interview", "Offered" };
+    var newReviewTiles = new[] { ("New", "Submitted"), ("Review", "Under Review") };
+    var progressTiles = new[] { ("Shortlisted", "Shortlisted"), ("Interview", "Interview"), ("Offered", "Offered") };
+}
+
+<style>
+    .fit-score-badge {
+        cursor: pointer;
+        transition: filter 0.15s ease;
+    }
+
+    .fit-score-badge:hover {
+        filter: brightness(0.85);
+    }
+
+    .tile-hover {
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .tile-hover:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.75rem 1.25rem rgba(0,0,0,0.10) !important;
+    }
+
+    .tile-selected {
+        transform: translateY(-3px);
+        box-shadow: 0 0.75rem 1.25rem rgba(0,0,0,0.12) !important;
+    }
+
+    .tile-primary {
+        border-top: 4px solid var(--bs-primary) !important;
+    }
+
+    .tile-info {
+        border-top: 4px solid var(--bs-info) !important;
+    }
+
+    .tile-success {
+        border-top: 4px solid var(--bs-success) !important;
+    }
+
+    .tile-danger {
+        border-top: 4px solid var(--bs-danger) !important;
+    }
+
+    .tile-check {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        color: #fff;
+        box-shadow: 0 0.15rem 0.35rem rgba(0,0,0,0.25);
+        z-index: 1;
+    }
+</style>
+
+<div class="bg-light rounded-4 p-4">
+
+    <div class="d-flex justify-content-between align-items-center bg-white rounded-4 shadow-sm p-3 mb-4">
+        <h4 class="mb-0">Applicant Tracking</h4>
+    </div>
+
+    @if (TempData["StatusError"] != null)
+    {
+        <div class="alert alert-danger">@TempData["StatusError"]</div>
+    }
+
+    <!-- Summary tiles, grouped by pastel color, doubling as the status filter -->
+    @* <div class="d-flex flex-wrap align-items-stretch gap-3 mb-4">
+        <a asp-action="Index" asp-route-vacancyId="@Model.SelectedVacancyId" asp-route-search="@Model.Search" class="text-decoration-none">
+            <div class="card tile-hover bg-primary-subtle border-0 rounded-4 shadow-sm h-100 @(string.IsNullOrEmpty(Model.SelectedStatus) ? "border border-2 border-primary" : "")" style="min-width:110px;">
+                <div class="card-body text-center py-3">
+                    <div class="fs-3 fw-bold text-primary-emphasis">@total</div>
+                    <div class="small text-primary-emphasis">Total</div>
+                </div>
+            </div>
+        </a>
+
+        <div class="vr d-none d-md-block"></div>
+
+        <div class="d-flex gap-2">
+            @foreach (var (label, key) in newReviewTiles)
+            {
+                <a asp-action="Index" asp-route-vacancyId="@Model.SelectedVacancyId" asp-route-search="@Model.Search" asp-route-status="@key" class="text-decoration-none">
+                    <div class="card tile-hover bg-info-subtle border-0 rounded-4 shadow-sm h-100 @(Model.SelectedStatus == key ? "border border-2 border-info" : "")" style="min-width:110px;">
+                        <div class="card-body text-center py-3">
+                            <div class="fs-3 fw-bold text-info-emphasis">@GetCount(key)</div>
+                            <div class="small text-info-emphasis">@label</div>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+
+        <div class="vr d-none d-md-block"></div>
+
+        <div class="d-flex gap-2">
+            @foreach (var (label, key) in progressTiles)
+            {
+                <a asp-action="Index" asp-route-vacancyId="@Model.SelectedVacancyId" asp-route-search="@Model.Search" asp-route-status="@key" class="text-decoration-none">
+                    <div class="card tile-hover bg-success-subtle border-0 rounded-4 shadow-sm h-100 @(Model.SelectedStatus == key ? "border border-2 border-success" : "")" style="min-width:110px;">
+                        <div class="card-body text-center py-3">
+                            <div class="fs-3 fw-bold text-success-emphasis">@GetCount(key)</div>
+                            <div class="small text-success-emphasis">@label</div>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+
+        <div class="vr d-none d-md-block"></div>
+
+        <a asp-action="Index" asp-route-vacancyId="@Model.SelectedVacancyId" asp-route-search="@Model.Search" asp-route-status="Rejected" class="text-decoration-none">
+            <div class="card tile-hover bg-danger-subtle border-0 rounded-4 shadow-sm h-100 @(Model.SelectedStatus == "Rejected" ? "border border-2 border-danger" : "")" style="min-width:110px;">
+                <div class="card-body text-center py-3">
+                    <div class="fs-3 fw-bold text-danger-emphasis">@GetCount("Rejected")</div>
+                    <div class="small text-danger-emphasis">Rejected</div>
+                </div>
+            </div>
+        </a>
+    </div> *@
+    <div class="d-flex flex-wrap align-items-stretch gap-3 mb-4">
+        @{
+            bool totalSelected = string.IsNullOrEmpty(Model.SelectedStatus);
+        }
+        <a asp-action="Index" asp-route-vacancyId="@Model.SelectedVacancyId" asp-route-search="@Model.Search" class="text-decoration-none">
+            <div class="card tile-hover position-relative bg-primary-subtle border-0 rounded-4 shadow-sm h-100 @(totalSelected ? "tile-selected tile-primary" : "")" style="min-width:110px;">
+                @if (totalSelected)
+                {
+                    <span class="tile-check bg-primary">&#10003;</span>
+                }
+                <div class="card-body text-center py-3">
+                    <div class="fs-3 fw-bold text-primary-emphasis">@total</div>
+                    <div class="small text-primary-emphasis">Total</div>
+                </div>
+            </div>
+        </a>
+        <div class="vr d-none d-md-block"></div>
+        <div class="d-flex gap-2">
+            @foreach (var (label, key) in newReviewTiles)
+            {
+                bool selected = Model.SelectedStatus == key;
+                <a asp-action="Index" asp-route-vacancyId="@Model.SelectedVacancyId" asp-route-search="@Model.Search" asp-route-status="@key" class="text-decoration-none">
+                    <div class="card tile-hover position-relative bg-info-subtle border-0 rounded-4 shadow-sm h-100 @(selected ? "tile-selected tile-info" : "")" style="min-width:110px;">
+                        @if (selected)
+                        {
+                            <span class="tile-check bg-info">&#10003;</span>
+                        }
+                        <div class="card-body text-center py-3">
+                            <div class="fs-3 fw-bold text-info-emphasis">@GetCount(key)</div>
+                            <div class="small text-info-emphasis">@label</div>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+        <div class="vr d-none d-md-block"></div>
+        <div class="d-flex gap-2">
+            @foreach (var (label, key) in progressTiles)
+            {
+                bool selected = Model.SelectedStatus == key;
+                <a asp-action="Index" asp-route-vacancyId="@Model.SelectedVacancyId" asp-route-search="@Model.Search" asp-route-status="@key" class="text-decoration-none">
+                    <div class="card tile-hover position-relative bg-success-subtle border-0 rounded-4 shadow-sm h-100 @(selected ? "tile-selected tile-success" : "")" style="min-width:110px;">
+                        @if (selected)
+                        {
+                            <span class="tile-check bg-success">&#10003;</span>
+                        }
+                        <div class="card-body text-center py-3">
+                            <div class="fs-3 fw-bold text-success-emphasis">@GetCount(key)</div>
+                            <div class="small text-success-emphasis">@label</div>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+        <div class="vr d-none d-md-block"></div>
+        @{
+            bool rejectedSelected = Model.SelectedStatus == "Rejected";
+        }
+        <a asp-action="Index" asp-route-vacancyId="@Model.SelectedVacancyId" asp-route-search="@Model.Search" asp-route-status="Rejected" class="text-decoration-none">
+            <div class="card tile-hover position-relative bg-danger-subtle border-0 rounded-4 shadow-sm h-100 @(rejectedSelected ? "tile-selected tile-danger" : "")" style="min-width:110px;">
+                @if (rejectedSelected)
+                {
+                    <span class="tile-check bg-danger">&#10003;</span>
+                }
+                <div class="card-body text-center py-3">
+                    <div class="fs-3 fw-bold text-danger-emphasis">@GetCount("Rejected")</div>
+                    <div class="small text-danger-emphasis">Rejected</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Filter / search bar -->
+    @* OLD FILTER BAR
+        <div class="card border-0 rounded-4 shadow-sm mb-4">
+        <div class="card-body">
+            <form asp-action="Index" method="get" class="row g-2 align-items-center">
+                <input type="hidden" name="status" value="@Model.SelectedStatus" />
+                <input type="hidden" name="sortBy" value="@Model.SortBy" />
+                <div class="col-auto">
+                    <select name="vacancyId" class="form-select">
+                        <option value="">All Vacancies</option>
+                        @foreach (var v in Model.MyVacancies)
+                        {
+                            <option value="@v.JobId" selected="@(v.JobId == Model.SelectedVacancyId ? "selected" : null)">@v.JobTitle</option>
+                        }
+                    </select>
+                </div>
+                <div class="col">
+                    <input type="text" name="search" class="form-control" placeholder="Search candidate, cover message, job title..." value="@Model.Search" />
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-outline-secondary">Search</button>
+                </div>
+                <div class="col-auto">
+                    <a asp-action="Index" asp-route-vacancyId="@Model.SelectedVacancyId" asp-route-status="@Model.SelectedStatus" asp-route-search="@Model.Search"
+                       class="btn btn-outline-secondary" title="Refresh">&#8635; Refresh</a>
+                    <div class="col-auto">
+                        @if (Model.SortBy == "fit")
+                        {
+                            <a asp-action="Index" asp-route-vacancyId="@Model.SelectedVacancyId" asp-route-status="@Model.SelectedStatus" asp-route-search="@Model.Search" class="btn btn-primary rounded-pill btn-sm">
+                                Sorted by Recommendation &#10003;
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-action="Index" asp-route-vacancyId="@Model.SelectedVacancyId" asp-route-status="@Model.SelectedStatus" asp-route-search="@Model.Search" asp-route-sortBy="fit" class="btn btn-outline-primary rounded-pill btn-sm">
+                                Sort by Recommendation Score
+                            </a>
+                        }
+                    </div>
+                   </div>
+                @if (Model.SelectedVacancyId.HasValue || !string.IsNullOrEmpty(Model.SelectedStatus) || !string.IsNullOrEmpty(Model.Search))
+                {
+                    <div class="col-auto">
+                        <a asp-action="Index" class="btn btn-link">Clear all filters</a>
+                    </div>
+                }
+            </form>
+        </div>
+    </div>
+     *@
+    <div class="card border-0 rounded-4 shadow-sm mb-4">
+        <div class="card-body">
+            <form asp-action="Index" method="get">
+                <input type="hidden" name="status" value="@Model.SelectedStatus" />
+                <input type="hidden" name="sortBy" value="@Model.SortBy" />
+
+                <div class="row g-2 align-items-center mb-2">
+                    <div class="col-auto">
+                        <select name="vacancyId" class="form-select">
+                            <option value="">All Vacancies</option>
+                            @foreach (var v in Model.MyVacancies)
+                            {
+                                <option value="@v.JobId" selected="@(v.JobId == Model.SelectedVacancyId ? "selected" : null)">@v.JobTitle</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col">
+                        <input type="text" name="search" class="form-control" placeholder="Search candidate, cover message, job title..." value="@Model.Search" />
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-outline-secondary">Search</button>
+                    </div>
+                </div>
+
+                <div class="row g-2 align-items-center my-2">
+                    <div class="col-auto">
+                        <a asp-action="Index" asp-route-vacancyId="@Model.SelectedVacancyId" asp-route-status="@Model.SelectedStatus" asp-route-search="@Model.Search"
+                           class="btn btn-outline-secondary" title="Refresh">&#8635; Refresh</a>
+                    </div>
+                    <div class="col-auto">
+                        @if (Model.SortBy == "fit")
+                        {
+                            <a asp-action="Index" asp-route-vacancyId="@Model.SelectedVacancyId" asp-route-status="@Model.SelectedStatus" asp-route-search="@Model.Search" class="btn btn-primary">
+                                Sorted by Recommendation &#10003;
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-action="Index" asp-route-vacancyId="@Model.SelectedVacancyId" asp-route-status="@Model.SelectedStatus" asp-route-search="@Model.Search" asp-route-sortBy="fit" class="btn btn-outline-primary">
+                                Sort by Recommendation Score
+                            </a>
+                        }
+                    </div>
+                    @if (Model.SelectedVacancyId.HasValue || !string.IsNullOrEmpty(Model.SelectedStatus) || !string.IsNullOrEmpty(Model.Search))
+                    {
+                        <div class="col-auto">
+                            <a asp-action="Index" class="btn btn-link">Clear all filters</a>
+                        </div>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+    @if (!Model.Applications.Any())
+    {
+        <div class="alert alert-light border text-center text-muted">No applications match the current filters.</div>
+    }
+    else
+    {
+        <div class="card border-0 rounded-4 shadow-sm mb-4">
+            <div class="card-body p-0">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-3">Candidate</th>
+                            <th>Recommendation</th>
+                            <th>Assessments</th>
+                            <th>Job Applied For</th>
+                            <th>Applied Date</th>
+                            <th>Cover Message</th>
+                            <th>Status</th>
+                            <th>Resume/CV</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var app in Model.Applications)
+                        {
+                            bool isActive = activeStatuses.Contains(app.Status);
+                            <tr>
+                                <td class="ps-3 align-self-auto">@(Model.Profiles.GetValueOrDefault(app.UserId)?.FullName ?? Model.Names.GetValueOrDefault(app.UserId))</td>
+                                <td>
+                                    @{
+                                        int score = Model.FitScores.GetValueOrDefault(app.JobApplicationId, 0);
+                                        string badgeClass = score >= 70 ? "bg-success-subtle text-success-emphasis"
+                                                           : score >= 40 ? "bg-warning-subtle text-warning-emphasis"
+                                                           : "bg-danger-subtle text-danger-emphasis";
+                                    }
+                                    @* <span class="badge rounded-pill @badgeClass">@score%</span> *@
+                                    <span class="badge rounded-pill @badgeClass px-3 py-2 fs-6 fw-semibold fit-score-badge"
+                                          data-bs-toggle="modal" data-bs-target="#fitScoreModal-@app.JobApplicationId" role="button">@score%</span>
+                                </td>
+                                <td>
+                                    @{
+                                        var results = Model.AssessmentsByApplicant.GetValueOrDefault(app.UserId) ?? new List<AssessmentResult>();
+                                        int passedCount = results.Count(r => r.IsPassed);
+                                    }
+                                    @if (results.Any())
+                                    {
+                                        string assessBadgeClass = passedCount == results.Count ? "bg-success-subtle text-success-emphasis"
+                                                                 : passedCount > 0 ? "bg-warning-subtle text-warning-emphasis"
+                                                                 : "bg-danger-subtle text-danger-emphasis";
+                                        <span class="badge rounded-pill @assessBadgeClass px-3 py-2 fw-semibold fit-score-badge"
+                                              data-bs-toggle="modal" data-bs-target="#assessmentModal-@app.JobApplicationId" role="button">
+                                            @passedCount/@results.Count passed
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">No assessments taken</span>
+                                    }
+                                </td>
+                                <td>@app.JobPosting?.JobTitle</td>
+                                <td>@app.AppliedDate.ToString("d MMM yyyy")</td>
+                                <td style="max-width:280px;">@app.CoverMessage</td>
+                                <td>
+                                    @if (isActive)
+                                    {
+                                        @* <form asp-action="UpdateStatus" method="post" class="d-flex gap-1 mb-1">
+                                            <input type="hidden" name="id" value="@app.JobApplicationId" />
+                                            <input type="hidden" name="vacancyId" value="@Model.SelectedVacancyId" />
+                                            <input type="hidden" name="status" value="@Model.SelectedStatus" />
+                                            <input type="hidden" name="search" value="@Model.Search" />
+                                            <select name="newStatus" class="form-select form-select-sm">
+                                                @foreach (var s in activeStatuses)
+                                                {
+                                                    <option value="@s" selected="@(s == app.Status ? "selected" : null)">@s</option>
+                                                }
+                                            </select>
+                                            <button type="submit" class="btn btn-outline-primary btn-sm">Update</button>
+                                        </form>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal-@app.JobApplicationId">
+                                            Reject
+                                        </button> *@
+                                        <div class="d-flex gap-1 align-items-center flex-nowrap mx-2">
+                                            <form asp-action="UpdateStatus" method="post" class="d-flex gap-1 align-items-center flex-grow-1" style="min-width:0;">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@app.JobApplicationId" />
+                                                <input type="hidden" name="vacancyId" value="@Model.SelectedVacancyId" />
+                                                <input type="hidden" name="status" value="@Model.SelectedStatus" />
+                                                <input type="hidden" name="search" value="@Model.Search" />
+                                                <select name="newStatus" class="form-select form-select-sm flex-grow-1" style="min-width:0;">
+                                                    @foreach (var s in activeStatuses)
+                                                    {
+                                                        <option value="@s" selected="@(s == app.Status ? "selected" : null)">@s</option>
+                                                    }
+                                                </select>
+                                                <button type="submit" class="btn btn-outline-primary btn-sm flex-shrink-0">Update</button>
+                                            </form>
+                                            <button type="button" class="btn btn-outline-danger btn-sm flex-shrink-0" data-bs-toggle="modal" data-bs-target="#rejectModal-@app.JobApplicationId">
+                                                Reject
+                                            </button>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="mx-2">
+                                            <span class="badge @(app.Status == "Rejected" ? "bg-danger" : "bg-secondary")">@app.Status</span>
+                                            @if (app.Status == "Rejected" && !string.IsNullOrEmpty(app.RejectionNote))
+                                            {
+                                                <div class="small text-muted mt-1">Reason: @app.RejectionNote</div>
+                                            }
+                                        </div>
+   
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(Model.Profiles.GetValueOrDefault(app.UserId)?.ResumeS3Key))
+                                    {
+                                        <a asp-action="DownloadResume" asp-route-id="@app.JobApplicationId" class="btn btn-outline-secondary btn-sm" target="_blank"
+                                           rel="noopener noreferrer">Download</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">Not uploaded</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+</div>
+
+@foreach (var app in Model.Applications.Where(a => activeStatuses.Contains(a.Status)))
+{
+    <div class="modal fade" id="rejectModal-@app.JobApplicationId" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <form asp-action="UpdateStatus" method="post">
+                <input type="hidden" name="id" value="@app.JobApplicationId" />
+                <input type="hidden" name="newStatus" value="Rejected" />
+                <input type="hidden" name="vacancyId" value="@Model.SelectedVacancyId" />
+                <input type="hidden" name="status" value="@Model.SelectedStatus" />
+                <input type="hidden" name="search" value="@Model.Search" />
+                <div class="modal-content rounded-4">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reject @(Model.Profiles.GetValueOrDefault(app.UserId)?.FullName ?? Model.Names.GetValueOrDefault(app.UserId))</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <label class="form-label">Reason for rejection</label>
+                        <textarea name="rejectionNote" class="form-control" rows="3" maxlength="500" required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Confirm Reject</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+@* ← new fit-score loop starts right here, as its own separate foreach *@
+@foreach (var app in Model.Applications)
+{
+    <div class="modal fade" id="fitScoreModal-@app.JobApplicationId" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content rounded-4">
+                <div class="modal-header">
+                    <h5 class="modal-title">Fit Score Breakdown — @(Model.Profiles.GetValueOrDefault(app.UserId)?.FullName ?? Model.Names.GetValueOrDefault(app.UserId))</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>Status</th>
+                                <th class="text-end">Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var aspect in Model.FitBreakdowns[app.JobApplicationId])
+                            {
+                                <tr>
+                                    <td>@aspect.Aspect</td>
+                                    <td>
+                                        @if (aspect.MaxPoints > 0 && aspect.PointsEarned == aspect.MaxPoints)
+                                        {
+                                            <span class="text-success">&#10003; Matched</span>
+                                        }
+                                        else if (aspect.PointsEarned > 0)
+                                        {
+                                            <span class="text-warning">&#9680; Partial Match</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">&#10007; No Match</span>
+                                        }
+                                    </td>
+                                    <td class="text-end">@aspect.PointsEarned%</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-bold border-top">
+                                <td colspan="2">Total Score</td>
+                                <td class="text-end">@Model.FitScores.GetValueOrDefault(app.JobApplicationId, 0)%</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@* Assessment results modal — every skill assessment this applicant has taken *@
+@foreach (var app in Model.Applications)
+{
+    var results = Model.AssessmentsByApplicant.GetValueOrDefault(app.UserId) ?? new List<AssessmentResult>();
+    <div class="modal fade" id="assessmentModal-@app.JobApplicationId" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content rounded-4">
+                <div class="modal-header">
+                    <h5 class="modal-title">Assessment Results — @(Model.Profiles.GetValueOrDefault(app.UserId)?.FullName ?? Model.Names.GetValueOrDefault(app.UserId))</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @if (!results.Any())
+                    {
+                        <p class="text-muted mb-0">This applicant has not taken any skill assessments yet.</p>
+                    }
+                    else
+                    {
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Assessment</th>
+                                    <th>Skill</th>
+                                    <th class="text-end">Score</th>
+                                    <th>Result</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var result in results)
+                                {
+                                    Model.AssessmentCatalog.TryGetValue(result.SkillAssessmentId, out var assessment);
+                                    <tr>
+                                        <td>@(assessment?.Title ?? "Unknown Assessment")</td>
+                                        <td>@(assessment?.SkillName ?? "-")</td>
+                                        <td class="text-end">@result.Score%</td>
+                                        <td>
+                                            @if (result.IsPassed)
+                                            {
+                                                <span class="text-success">&#10003; Passed</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-danger">&#10007; Failed</span>
+                                            }
+                                        </td>
+                                        <td>@result.CompletedDate.ToString("d MMM yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
