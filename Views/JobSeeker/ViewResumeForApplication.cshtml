@@ -1,0 +1,459 @@
+@model JobCareerPlatform.Models.JobSeekerProfile
+
+@{
+    Layout = "_JobSeekerLayout";
+    ViewData["Title"] = "Resume Preview";
+
+    var job = ViewBag.Job as JobCareerPlatform.Models.JobPosting;
+    var resumeUrl = ViewBag.ResumeUrl as string;
+}
+
+<div class="py-3">
+
+    <div class="resume-preview-page">
+
+        <!-- Back -->
+        <div class="mb-3">
+            <a asp-action="ApplyJob"
+               asp-route-id="@job?.JobId"
+               class="back-link">
+                <i class="bi bi-arrow-left me-1"></i>
+                Back to Application
+            </a>
+        </div>
+
+
+        <div class="card border-0 shadow-sm preview-card">
+
+            <div class="card-body p-4 p-md-5">
+
+                <!-- Header -->
+                <div class="preview-header">
+
+                    <div>
+                        <span class="page-badge">
+                            <i class="bi bi-file-earmark-pdf me-1"></i>
+                            Resume Preview
+                        </span>
+
+                        <h2 class="fw-bold mt-2 mb-1">My Resume</h2>
+
+                        @if (job != null)
+                        {
+                            <p class="text-muted mb-0">
+                                Review your resume before applying for <strong>@job.JobTitle</strong>.
+                            </p>
+                        }
+                        else
+                        {
+                            <p class="text-muted mb-0">Review your current resume.</p>
+                        }
+                    </div>
+
+                    <div class="preview-header-actions">
+
+                        @if (!string.IsNullOrWhiteSpace(resumeUrl))
+                        {
+                            <a href="@resumeUrl"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="btn btn-outline-primary">
+                                <i class="bi bi-box-arrow-up-right me-1"></i>
+                                Open PDF
+                            </a>
+                        }
+
+                        @if (job != null)
+                        {
+                            <a asp-action="EditProfile"
+                               asp-route-returnJobId="@job.JobId"
+                               class="btn btn-outline-secondary">
+                                <i class="bi bi-pencil me-1"></i>
+                                Replace Resume
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-action="EditProfile" class="btn btn-outline-secondary">
+                                <i class="bi bi-pencil me-1"></i>
+                                Replace Resume
+                            </a>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <hr class="my-4" />
+
+
+                <!-- Applicant / Resume Info -->
+                <div class="row g-3 mb-4">
+
+                    <div class="col-md-6">
+                        <div class="info-card">
+                            <div class="info-icon applicant-icon">
+                                <i class="bi bi-person"></i>
+                            </div>
+                            <div>
+                                <span class="info-label">Applicant</span>
+                                <div class="info-value">@Model.FullName</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-card">
+                            <div class="info-icon file-icon">
+                                <i class="bi bi-file-earmark-pdf"></i>
+                            </div>
+                            <div>
+                                <span class="info-label">Resume File</span>
+                                <div class="info-value">PDF Document</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <!-- Storage Info -->
+                <div class="storage-card mb-4">
+
+                    <div class="storage-left">
+                        <div class="storage-icon">
+                            <i class="bi bi-cloud-check"></i>
+                        </div>
+                        <div>
+                            <div class="fw-semibold">Resume Ready</div>
+                            <div class="text-muted small">
+                                Your resume is securely stored in Amazon S3 and ready to be used for this application.
+                            </div>
+                        </div>
+                    </div>
+
+                    <span class="ready-badge">
+                        <i class="bi bi-check-circle-fill me-1"></i>
+                        Ready
+                    </span>
+
+                </div>
+
+
+                <!-- PDF Preview Header -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+
+                    <div>
+                        <h5 class="fw-bold mb-1">Document Preview</h5>
+                        <p class="text-muted small mb-0">
+                            Review the document before returning to your application.
+                        </p>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(resumeUrl))
+                    {
+                        <a href="@resumeUrl"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="open-link">
+                            Open in new tab
+                            <i class="bi bi-box-arrow-up-right ms-1"></i>
+                        </a>
+                    }
+
+                </div>
+
+
+                <!-- PDF Viewer -->
+                @if (!string.IsNullOrWhiteSpace(resumeUrl))
+                {
+                    <div class="pdf-wrapper">
+                        <iframe src="@resumeUrl" class="pdf-viewer" title="Resume PDF Preview"></iframe>
+                    </div>
+                }
+                else
+                {
+                    <div class="resume-unavailable">
+                        <div class="unavailable-icon">
+                            <i class="bi bi-file-earmark-x"></i>
+                        </div>
+                        <h5 class="fw-bold mt-3 mb-2">Resume Unavailable</h5>
+                        <p class="text-muted mb-0">The resume could not be loaded.</p>
+                    </div>
+                }
+
+
+                <!-- Bottom Actions -->
+                <div class="bottom-actions">
+
+                    <a asp-action="ApplyJob"
+                       asp-route-id="@job?.JobId"
+                       class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Back to Application
+                    </a>
+
+                    @if (job != null)
+                    {
+                        <a asp-action="ApplyJob"
+                           asp-route-id="@job.JobId"
+                           class="btn btn-primary continue-button">
+                            Continue Application
+                            <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+    .resume-preview-page {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        color: #64748b;
+        text-decoration: none;
+        font-size: .85rem;
+        font-weight: 500;
+    }
+
+        .back-link:hover {
+            color: #2563eb;
+        }
+
+    .preview-card {
+        border-radius: 16px;
+    }
+
+    .preview-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .page-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 11px;
+        border-radius: 20px;
+        background: #fee2e2;
+        color: #dc2626;
+        font-size: .76rem;
+        font-weight: 600;
+    }
+
+    .preview-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .preview-header-actions .btn {
+            border-radius: 9px;
+            font-size: .82rem;
+            font-weight: 600;
+        }
+
+    .info-card {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 15px;
+        border: 1px solid #edf0f4;
+        border-radius: 12px;
+        background: #ffffff;
+    }
+
+    .info-icon {
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        font-size: 17px;
+    }
+
+    .applicant-icon {
+        background: #eef4ff;
+        color: #2563eb;
+    }
+
+    .file-icon {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .info-label {
+        display: block;
+        margin-bottom: 2px;
+        color: #94a3b8;
+        font-size: .72rem;
+        font-weight: 600;
+    }
+
+    .info-value {
+        color: #1e293b;
+        font-size: .9rem;
+        font-weight: 600;
+    }
+
+    .storage-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        border: 1px solid #d1fae5;
+        border-radius: 12px;
+        background: #f0fdf4;
+    }
+
+    .storage-left {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+    }
+
+    .storage-icon {
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #dcfce7;
+        color: #15803d;
+        font-size: 18px;
+    }
+
+    .ready-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 10px;
+        border-radius: 20px;
+        background: #dcfce7;
+        color: #15803d;
+        font-size: .72rem;
+        font-weight: 600;
+    }
+
+    .open-link {
+        color: #2563eb;
+        text-decoration: none;
+        font-size: .8rem;
+        font-weight: 600;
+    }
+
+        .open-link:hover {
+            text-decoration: underline;
+        }
+
+    .pdf-wrapper {
+        width: 100%;
+        height: 750px;
+        overflow: hidden;
+        border: 1px solid #dfe5ec;
+        border-radius: 14px;
+        background: #f1f5f9;
+        box-shadow: inset 0 0 0 1px rgba(15,23,42,.02);
+    }
+
+    .pdf-viewer {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: white;
+    }
+
+    .resume-unavailable {
+        padding: 80px 20px;
+        text-align: center;
+        border: 1px dashed #cbd5e1;
+        border-radius: 14px;
+        background: #f8fafc;
+    }
+
+    .unavailable-icon {
+        width: 58px;
+        height: 58px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        background: #f1f5f9;
+        color: #94a3b8;
+        font-size: 24px;
+    }
+
+    .bottom-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid #edf0f4;
+    }
+
+        .bottom-actions .btn {
+            border-radius: 9px;
+            padding: 9px 17px;
+            font-size: .86rem;
+            font-weight: 600;
+        }
+
+    .continue-button {
+        min-width: 180px;
+    }
+
+    @@media (max-width: 767px) {
+
+        .preview-header {
+            flex-direction: column;
+        }
+
+        .preview-header-actions {
+            width: 100%;
+            flex-direction: column;
+        }
+
+            .preview-header-actions .btn {
+                width: 100%;
+            }
+
+        .storage-card {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .pdf-wrapper {
+            height: 550px;
+        }
+
+        .bottom-actions {
+            flex-direction: column-reverse;
+        }
+
+            .bottom-actions .btn {
+                width: 100%;
+            }
+    }
+</style>

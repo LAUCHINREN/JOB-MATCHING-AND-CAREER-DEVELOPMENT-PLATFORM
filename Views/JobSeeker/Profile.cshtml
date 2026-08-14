@@ -4,6 +4,7 @@
     Layout = "_JobSeekerLayout";
     ViewData["Title"] = "Career Profile";
     var skills = ViewBag.Skills as List<JobSeekerSkill>;
+    var resumeUrl = ViewBag.ResumeUrl as string;
 
 }
 
@@ -411,6 +412,94 @@
 
                 <hr class="section-divider" />
 
+                <!-- Resume -->
+                <div class="content-section">
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+
+                        <div class="section-heading">
+                            <div class="section-heading-icon resume-heading-icon">
+                                <i class="bi bi-file-earmark-person"></i>
+                            </div>
+
+                            <div>
+                                <h5 class="fw-bold mb-0">Resume</h5>
+                                <small class="text-muted">Your latest resume for job applications</small>
+                            </div>
+                        </div>
+
+                        <a asp-action="EditProfile"
+                           class="btn btn-outline-primary btn-sm rounded-3 px-3">
+                            <i class="bi bi-pencil me-1"></i>
+                            @if (string.IsNullOrWhiteSpace(Model.ResumeS3Key))
+                            {
+                                <span>Upload Resume</span>
+                            }
+                            else
+                            {
+                                <span>Replace Resume</span>
+                            }
+                        </a>
+
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.ResumeS3Key))
+                    {
+                        <div class="resume-card">
+
+                            <div class="resume-left">
+
+                                <div class="resume-file-icon">
+                                    <i class="bi bi-file-earmark-pdf-fill"></i>
+                                </div>
+
+                                <div>
+                                    <div class="fw-semibold resume-title">My Resume</div>
+                                    <div class="text-muted small">PDF resume stored securely in Amazon S3</div>
+                                </div>
+
+                            </div>
+
+                            <div class="resume-actions">
+                                @if (!string.IsNullOrWhiteSpace(resumeUrl))
+                                {
+                                    <a href="@resumeUrl"
+                                       target="_blank"
+                                       rel="noopener noreferrer"
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-eye me-1"></i>
+                                        View Resume
+                                    </a>
+                                }
+                            </div>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-resume">
+
+                            <div class="empty-resume-icon">
+                                <i class="bi bi-file-earmark-plus"></i>
+                            </div>
+
+                            <div class="flex-grow-1">
+                                <h6 class="fw-semibold mb-1">No resume uploaded</h6>
+                                <p class="text-muted small mb-0">Upload a PDF resume to keep your career profile complete.</p>
+                            </div>
+
+                            <a asp-action="EditProfile" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-upload me-1"></i>
+                                Upload Resume
+                            </a>
+
+                        </div>
+                    }
+
+                </div>
+
+                <hr class="section-divider" />
+
                 <!-- Skills -->
                 <div class="content-section">
 
@@ -775,6 +864,75 @@
         font-weight: 600;
     }
 
+    .resume-heading-icon {
+        background: #fff1f2;
+        color: #dc2626;
+    }
+
+    .resume-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 18px;
+        padding: 18px;
+        background: #fafcff;
+        border: 1px solid #e5eaf1;
+        border-radius: 13px;
+    }
+
+    .resume-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .resume-file-icon {
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #fee2e2;
+        color: #dc2626;
+        font-size: 21px;
+    }
+
+    .resume-title {
+        font-size: .95rem;
+        color: #1f2937;
+    }
+
+    .resume-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .empty-resume {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 20px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 13px;
+        background: #fafcff;
+    }
+
+    .empty-resume-icon {
+        width: 46px;
+        height: 46px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #eef4ff;
+        color: #2563eb;
+        font-size: 19px;
+    }
+
 
     .bottom-actions {
         margin-top: 30px;
@@ -935,6 +1093,25 @@
         .empty-skills .btn {
             width: 100%;
         }
+
+        .resume-card {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .resume-actions,
+        .resume-actions .btn {
+            width: 100%;
+        }
+
+        .empty-resume {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+            .empty-resume .btn {
+                width: 100%;
+            }
     }
 
 </style>

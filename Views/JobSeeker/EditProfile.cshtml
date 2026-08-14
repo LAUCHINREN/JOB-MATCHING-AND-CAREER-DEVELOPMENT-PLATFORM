@@ -3,6 +3,9 @@
 @{
     Layout = "_JobSeekerLayout";
     ViewData["Title"] = "Edit Profile";
+
+    var resumeUrl = ViewBag.ResumeUrl as string;
+    int? returnJobId = ViewBag.ReturnJobId as int?;
 }
 
 <div class="container py-5">
@@ -16,7 +19,7 @@
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
 
                         <div>
-                            <<span class="badge rounded-pill bg-light text-primary mb-3 px-3 py-2">
+                            <span class="badge rounded-pill bg-light text-primary mb-3 px-3 py-2">
                                 Edit Job Seeker Profile
                             </span>
 
@@ -38,7 +41,14 @@
 
                 <div class="card-body p-4 p-md-5">
 
-                    <form asp-action="EditProfile" method="post">
+                    <form asp-action="EditProfile" method="post" enctype="multipart/form-data">
+
+                        <input type="hidden" asp-for="JobSeekerProfileId" />
+
+                        @if (returnJobId.HasValue)
+                        {
+                            <input type="hidden" name="returnJobId" value="@returnJobId.Value" />
+                        }
 
                         <div asp-validation-summary="ModelOnly"
                              class="alert alert-danger rounded-3"
@@ -261,13 +271,110 @@
 
                         </div>
 
+                        <hr class="my-5" />
+
+                        <!-- Resume -->
+                        <div class="section-title mb-4">
+                            <div class="section-icon">04</div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Resume</h5>
+                                <p class="text-muted small mb-0">
+                                    View or replace your current resume.
+                                </p>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.ResumeS3Key))
+                        {
+                            <div class="current-resume mb-3">
+
+                                <div class="d-flex align-items-center gap-3">
+
+                                    <div class="resume-icon">
+                                        <i class="bi bi-file-earmark-pdf-fill"></i>
+                                    </div>
+
+                                    <div>
+                                        <div class="fw-semibold">Current Resume</div>
+                                        <div class="text-muted small">PDF resume stored in Amazon S3</div>
+                                    </div>
+
+                                </div>
+
+                                @if (!string.IsNullOrWhiteSpace(resumeUrl))
+                                {
+                                    <a href="@resumeUrl"
+                                       target="_blank"
+                                       rel="noopener noreferrer"
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-eye me-1"></i>
+                                        View Current Resume
+                                    </a>
+                                }
+
+                            </div>
+                        }
+
+                        <div class="resume-upload-box">
+
+                            <div class="resume-icon">
+                                <i class="bi bi-cloud-arrow-up"></i>
+                            </div>
+
+                            <div class="flex-grow-1">
+
+                                <label for="ResumeFile" class="form-label fw-semibold">
+                                    @if (string.IsNullOrWhiteSpace(Model.ResumeS3Key))
+                                    {
+                                        <span>Upload Resume</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Replace Resume</span>
+                                    }
+                                </label>
+
+                                <input type="file"
+                                       id="ResumeFile"
+                                       name="ResumeFile"
+                                       class="form-control"
+                                       accept=".pdf,application/pdf" />
+
+                                <div class="form-text">
+                                    @if (string.IsNullOrWhiteSpace(Model.ResumeS3Key))
+                                    {
+                                        <span>Choose a PDF resume from your device. Maximum 5 MB.</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Leave this empty to keep your current resume, or choose a new PDF to replace it. Maximum 5 MB.</span>
+                                    }
+                                </div>
+
+                                @Html.ValidationMessage("ResumeFile", null, new { @class = "text-danger small" })
+
+                            </div>
+
+                        </div>
+
                         <!-- Actions -->
                         <div class="d-flex flex-column flex-sm-row justify-content-between gap-3 mt-5 pt-3">
 
-                            <a asp-action="Profile"
-                               class="btn btn-light btn-lg px-4 rounded-3">
-                                ← Cancel
-                            </a>
+                            @if (returnJobId.HasValue)
+                            {
+                                <a asp-action="ApplyJob"
+                                   asp-route-id="@returnJobId.Value"
+                                   class="btn btn-light btn-lg px-4 rounded-3">
+                                    ← Back to Application
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-action="Profile"
+                                   class="btn btn-light btn-lg px-4 rounded-3">
+                                    ← Cancel
+                                </a>
+                            }
 
                             <button type="submit"
                                     class="btn btn-primary btn-lg px-5 rounded-3">
@@ -347,6 +454,56 @@
 
     .input-group .form-control {
         border-radius: 0 12px 12px 0;
+    }
+
+    .current-resume {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        padding: 16px;
+        border: 1px solid #e5eaf1;
+        border-radius: 13px;
+        background: #fafcff;
+    }
+
+    .resume-upload-box {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 20px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 14px;
+        background: #f8fafc;
+    }
+
+    .resume-icon {
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #fee2e2;
+        color: #dc2626;
+        font-size: 20px;
+    }
+
+    @@media (max-width: 767px) {
+
+        .current-resume {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+            .current-resume .btn {
+                width: 100%;
+            }
+
+        .resume-upload-box {
+            flex-direction: column;
+        }
     }
 </style>
 

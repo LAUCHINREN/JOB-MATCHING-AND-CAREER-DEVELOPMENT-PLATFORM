@@ -5,6 +5,7 @@
     ViewData["Title"] = "Apply for Job";
 
     var job = ViewBag.Job as JobCareerPlatform.Models.JobPosting;
+    var profile = ViewBag.Profile as JobCareerPlatform.Models.JobSeekerProfile;
 }
 
 <div class="py-3">
@@ -60,6 +61,77 @@
                             <div asp-validation-summary="ModelOnly"
                                  class="alert alert-danger"
                                  role="alert">
+                            </div>
+
+
+                            <!-- Resume -->
+                            <div class="mb-4">
+
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label class="form-label fw-semibold mb-0">Resume</label>
+                                    <span class="resume-label">Career Profile</span>
+                                </div>
+
+                                @if (profile != null && !string.IsNullOrWhiteSpace(profile.ResumeS3Key))
+                                {
+                                    <div class="resume-card">
+
+                                        <div class="resume-left">
+
+                                            <div class="resume-icon">
+                                                <i class="bi bi-file-earmark-pdf-fill"></i>
+                                            </div>
+
+                                            <div>
+                                                <div class="fw-semibold">My Resume</div>
+                                                <div class="text-muted small">Your current resume will be used with this application.</div>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="resume-actions">
+
+                                            <a asp-action="ViewResumeForApplication"
+                                               asp-route-jobId="@Model.JobId"
+                                               class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-eye me-1"></i>
+                                                View Resume
+                                            </a>
+
+                                            <a asp-action="EditProfile"
+                                               asp-route-returnJobId="@Model.JobId"
+                                               class="btn btn-outline-secondary btn-sm">
+                                                <i class="bi bi-pencil me-1"></i>
+                                                Replace
+                                            </a>
+
+                                        </div>
+
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="resume-missing">
+
+                                        <div class="resume-missing-icon">
+                                            <i class="bi bi-file-earmark-plus"></i>
+                                        </div>
+
+                                        <div class="flex-grow-1">
+                                            <div class="fw-semibold">No Resume Uploaded</div>
+                                            <div class="text-muted small">Upload a PDF resume before submitting your application.</div>
+                                        </div>
+
+                                        <a asp-action="EditProfile"
+                                           asp-route-returnJobId="@Model.JobId"
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-upload me-1"></i>
+                                            Upload Resume
+                                        </a>
+
+                                    </div>
+                                }
+
                             </div>
 
 
@@ -132,13 +204,23 @@
 
                                 </a>
 
-                                <button type="submit"
-                                        class="btn btn-primary submit-button">
-
-                                    <i class="bi bi-send me-1"></i>
-                                    Submit Application
-
-                                </button>
+                                @if (profile != null && !string.IsNullOrWhiteSpace(profile.ResumeS3Key))
+                                {
+                                    <button type="submit"
+                                            class="btn btn-primary submit-button">
+                                        <i class="bi bi-send me-1"></i>
+                                        Submit Application
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="button"
+                                            class="btn btn-secondary submit-button"
+                                            disabled>
+                                        <i class="bi bi-file-earmark-x me-1"></i>
+                                        Resume Required
+                                    </button>
+                                }
 
                             </div>
 
@@ -348,6 +430,81 @@
         font-weight: 600;
     }
 
+    .resume-label {
+        padding: 4px 9px;
+        border-radius: 20px;
+        background: #eef4ff;
+        color: #2563eb;
+        font-size: .7rem;
+        font-weight: 600;
+    }
+
+    .resume-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding: 16px;
+        background: #f8fafc;
+        border: 1px solid #e5eaf1;
+        border-radius: 12px;
+    }
+
+    .resume-left {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+    }
+
+    .resume-icon {
+        width: 44px;
+        height: 44px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        background: #fee2e2;
+        color: #dc2626;
+        font-size: 19px;
+    }
+
+    .resume-actions {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        flex-shrink: 0;
+    }
+
+        .resume-actions .btn {
+            border-radius: 8px;
+            font-size: .78rem;
+            font-weight: 600;
+        }
+
+    .resume-missing {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 16px;
+        background: #fffbeb;
+        border: 1px dashed #fcd34d;
+        border-radius: 12px;
+    }
+
+    .resume-missing-icon {
+        width: 44px;
+        height: 44px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        background: #fef3c7;
+        color: #d97706;
+        font-size: 18px;
+    }
+
     .optional-badge {
         padding: 4px 9px;
         border-radius: 20px;
@@ -510,6 +667,24 @@
             .form-actions .btn {
                 width: 100%;
             }
+
+        .resume-card,
+        .resume-missing {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .resume-actions {
+            width: 100%;
+        }
+
+            .resume-actions .btn {
+                flex: 1;
+            }
+
+        .resume-missing .btn {
+            width: 100%;
+        }
     }
 
 </style>

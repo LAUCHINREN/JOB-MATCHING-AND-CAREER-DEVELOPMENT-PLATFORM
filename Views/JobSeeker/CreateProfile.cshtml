@@ -38,7 +38,7 @@
 
                 <div class="card-body p-4 p-md-5">
 
-                    <form asp-action="CreateProfile" method="post">
+                    <form asp-action="CreateProfile" method="post" enctype="multipart/form-data">
 
                         <div asp-validation-summary="ModelOnly"
                              class="alert alert-danger rounded-3"
@@ -261,6 +261,51 @@
 
                         </div>
 
+                        <hr class="my-5" />
+
+                        <!-- Resume -->
+                        <div class="section-title mb-4">
+                            <div class="section-icon">04</div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Resume</h5>
+                                <p class="text-muted small mb-0">
+                                    Upload your latest resume from your device.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="resume-upload-box">
+
+                            <div class="resume-icon">
+                                <i class="bi bi-file-earmark-pdf"></i>
+                            </div>
+
+                            <div class="flex-grow-1">
+
+                                <label for="ResumeFile" class="form-label fw-semibold mb-1">
+                                    Upload Resume
+                                </label>
+
+                                <p class="text-muted small mb-3">
+                                    Choose a PDF resume from your computer or device.
+                                </p>
+
+                                <input type="file"
+                                       id="ResumeFile"
+                                       name="ResumeFile"
+                                       class="form-control"
+                                       accept=".pdf,application/pdf" />
+
+                                <div class="form-text">
+                                    PDF only. Maximum file size: 5 MB.
+                                </div>
+
+                                @Html.ValidationMessage("ResumeFile", null, new { @class = "text-danger small" })
+
+                            </div>
+
+                        </div>
+
                         <!-- Actions -->
                         <div class="d-flex flex-column flex-sm-row justify-content-between gap-3 mt-5 pt-3">
 
@@ -347,6 +392,35 @@
 
     .input-group .form-control {
         border-radius: 0 12px 12px 0;
+    }
+
+    .resume-upload-box {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 20px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 14px;
+        background: #f8fafc;
+    }
+
+    .resume-icon {
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #fee2e2;
+        color: #dc2626;
+        font-size: 20px;
+    }
+
+    @@media (max-width: 767px) {
+        .resume-upload-box {
+            flex-direction: column;
+        }
     }
 </style>
 

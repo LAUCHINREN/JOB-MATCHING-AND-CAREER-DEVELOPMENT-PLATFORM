@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Amazon;
 using Amazon.Runtime;
+using Amazon.S3;
+using Amazon.S3.Model;
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
 using System.Text.Json;
@@ -27,6 +29,112 @@ namespace JobCareerPlatform.Controllers
             _context = context;
             _userManager = userManager;
             _configuration = configuration;
+        }
+
+        private AmazonS3Client CreateS3Client()
+        {
+            var credentials = new SessionAWSCredentials(
+                _configuration["AWS:AccessKey"],
+                _configuration["AWS:SecretKey"],
+                _configuration["AWS:SessionToken"]);
+
+            return new AmazonS3Client(credentials, RegionEndpoint.USEast1);
+        }
+
+        private async Task<string?> UploadResumeAsync(string userId, IFormFile resumeFile)
+        {
+            if (resumeFile.Length <= 0)
+            {
+                ModelState.AddModelError("ResumeFile", "Please select a resume file.");
+                return null;
+            }
+
+            if (resumeFile.Length > 5_000_000)
+            {
+                ModelState.AddModelError("ResumeFile", "Resume must be 5 MB or smaller.");
+                return null;
+            }
+
+            string extension = Path.GetExtension(resumeFile.FileName).ToLowerInvariant();
+            if (extension != ".pdf")
+            {
+                ModelState.AddModelError("ResumeFile", "Only PDF resume files are allowed.");
+                return null;
+            }
+
+            if (resumeFile.ContentType != "application/pdf")
+            {
+                ModelState.AddModelError("ResumeFile", "Only PDF resume files are allowed.");
+                return null;
+            }
+
+            string? bucketName = _configuration["AWS:ResumeBucketName"];
+            if (string.IsNullOrWhiteSpace(bucketName))
+            {
+                ModelState.AddModelError("ResumeFile", "Resume S3 bucket is not configured.");
+                return null;
+            }
+
+            string key = $"resumes/user-{userId}/{Guid.NewGuid()}.pdf";
+
+            using var client = CreateS3Client();
+            using var stream = resumeFile.OpenReadStream();
+
+            var uploadRequest = new PutObjectRequest
+            {
+                BucketName = bucketName,
+                Key = key,
+                InputStream = stream,
+                ContentType = "application/pdf"
+            };
+
+            await client.PutObjectAsync(uploadRequest);
+
+            return key;
+        }
+
+        private string GenerateResumeUrl(string resumeS3Key)
+        {
+            using var client = CreateS3Client();
+            string bucketName = _configuration["AWS:ResumeBucketName"]!;
+
+            var request = new GetPreSignedUrlRequest
+            {
+                BucketName = bucketName,
+                Key = resumeS3Key,
+                Expires = DateTime.UtcNow.AddMinutes(10)
+            };
+
+            return client.GetPreSignedURL(request);
+        }
+
+        private async Task DeleteResumeFromS3Async(string resumeS3Key)
+        {
+            if (string.IsNullOrWhiteSpace(resumeS3Key))
+            {
+                return;
+            }
+
+            try
+            {
+                string? bucketName = _configuration["AWS:ResumeBucketName"];
+                if (string.IsNullOrWhiteSpace(bucketName))
+                {
+                    return;
+                }
+
+                using var client = CreateS3Client();
+
+                await client.DeleteObjectAsync(new DeleteObjectRequest
+                {
+                    BucketName = bucketName,
+                    Key = resumeS3Key
+                });
+            }
+            catch (AmazonS3Exception ex)
+            {
+                Console.WriteLine($"S3 error while deleting resume: {ex.Message}");
+            }
         }
 
         public async Task<IActionResult> Home()
@@ -237,6 +345,11 @@ namespace JobCareerPlatform.Controllers
 
             ViewBag.Skills = skills;
 
+            if (!string.IsNullOrWhiteSpace(profile.ResumeS3Key))
+            {
+                ViewBag.ResumeUrl = GenerateResumeUrl(profile.ResumeS3Key);
+            }
+
             return View(profile);
         }
 
@@ -270,7 +383,7 @@ namespace JobCareerPlatform.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateProfile(JobSeekerProfile profile)
+        public async Task<IActionResult> CreateProfile(JobSeekerProfile profile, IFormFile? ResumeFile)
         {
             var user = await _userManager.GetUserAsync(User);
 
@@ -288,6 +401,18 @@ namespace JobCareerPlatform.Controllers
             }
 
             profile.UserId = user.Id;
+
+            if (ResumeFile != null && ResumeFile.Length > 0)
+            {
+                string? resumeKey = await UploadResumeAsync(user.Id, ResumeFile);
+
+                if (!ModelState.IsValid)
+                {
+                    return View(profile);
+                }
+
+                profile.ResumeS3Key = resumeKey;
+            }
 
             if (!ModelState.IsValid)
             {
@@ -312,7 +437,7 @@ namespace JobCareerPlatform.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> EditProfile()
+        public async Task<IActionResult> EditProfile(int? returnJobId)
         {
             var user = await _userManager.GetUserAsync(User);
 
@@ -329,13 +454,20 @@ namespace JobCareerPlatform.Controllers
                 return RedirectToAction(nameof(CreateProfile));
             }
 
+            if (!string.IsNullOrWhiteSpace(profile.ResumeS3Key))
+            {
+                ViewBag.ResumeUrl = GenerateResumeUrl(profile.ResumeS3Key);
+            }
+
+            ViewBag.ReturnJobId = returnJobId;
+
             return View(profile);
         }
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditProfile(JobSeekerProfile profile)
+        public async Task<IActionResult> EditProfile(JobSeekerProfile profile, IFormFile? ResumeFile, int? returnJobId)
         {
             var user = await _userManager.GetUserAsync(User);
 
@@ -352,8 +484,38 @@ namespace JobCareerPlatform.Controllers
                 return RedirectToAction(nameof(CreateProfile));
             }
 
+            string? oldResumeKey = existingProfile.ResumeS3Key;
+
+            if (ResumeFile != null && ResumeFile.Length > 0)
+            {
+                string? newResumeKey = await UploadResumeAsync(user.Id, ResumeFile);
+
+                if (!ModelState.IsValid)
+                {
+                    profile.ResumeS3Key = oldResumeKey;
+
+                    if (!string.IsNullOrWhiteSpace(oldResumeKey))
+                    {
+                        ViewBag.ResumeUrl = GenerateResumeUrl(oldResumeKey);
+                    }
+
+                    ViewBag.ReturnJobId = returnJobId;
+                    return View(profile);
+                }
+
+                existingProfile.ResumeS3Key = newResumeKey;
+            }
+
             if (!ModelState.IsValid)
             {
+                profile.ResumeS3Key = oldResumeKey;
+
+                if (!string.IsNullOrWhiteSpace(oldResumeKey))
+                {
+                    ViewBag.ResumeUrl = GenerateResumeUrl(oldResumeKey);
+                }
+
+                ViewBag.ReturnJobId = returnJobId;
                 return View(profile);
             }
 
@@ -376,7 +538,19 @@ namespace JobCareerPlatform.Controllers
 
             await _context.SaveChangesAsync();
 
+            if (ResumeFile != null && ResumeFile.Length > 0 &&
+                !string.IsNullOrWhiteSpace(oldResumeKey) &&
+                oldResumeKey != existingProfile.ResumeS3Key)
+            {
+                await DeleteResumeFromS3Async(oldResumeKey);
+            }
+
             TempData["SuccessMessage"] = "Profile updated successfully.";
+
+            if (returnJobId.HasValue)
+            {
+                return RedirectToAction(nameof(ApplyJob), new { id = returnJobId.Value });
+            }
 
             return RedirectToAction(nameof(Profile));
         }
@@ -402,6 +576,8 @@ namespace JobCareerPlatform.Controllers
                 return RedirectToAction(nameof(Home));
             }
 
+            string? resumeS3Key = profile.ResumeS3Key;
+
             AddUserActivity(
                 user.Id,
                 "Delete Profile",
@@ -411,6 +587,11 @@ namespace JobCareerPlatform.Controllers
 
             _context.JobSeekerProfiles.Remove(profile);
             await _context.SaveChangesAsync();
+
+            if (!string.IsNullOrWhiteSpace(resumeS3Key))
+            {
+                await DeleteResumeFromS3Async(resumeS3Key);
+            }
 
             TempData["SuccessMessage"] = "Profile deleted successfully.";
 
@@ -707,6 +888,15 @@ namespace JobCareerPlatform.Controllers
                 );
             }
 
+            var applicantProfile = await _context.JobSeekerProfiles
+                .FirstOrDefaultAsync(p => p.UserId == user.Id);
+
+            if (applicantProfile == null || string.IsNullOrWhiteSpace(applicantProfile.ResumeS3Key))
+            {
+                TempData["ErrorMessage"] = "Please upload a resume before submitting your application.";
+                return RedirectToAction(nameof(ApplyJob), new { id = application.JobId });
+            }
+
             application.UserId = user.Id;
             application.Status = "Submitted";
             application.AppliedDate = DateTime.Now;
@@ -718,6 +908,8 @@ namespace JobCareerPlatform.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.Job = job;
+                ViewBag.Profile = applicantProfile;
+                ViewBag.ResumeUrl = GenerateResumeUrl(applicantProfile.ResumeS3Key);
                 return View(application);
             }
 
@@ -776,6 +968,16 @@ namespace JobCareerPlatform.Controllers
                 );
             }
 
+            var profile = await _context.JobSeekerProfiles
+                .FirstOrDefaultAsync(p => p.UserId == user.Id);
+
+            ViewBag.Profile = profile;
+
+            if (profile != null && !string.IsNullOrWhiteSpace(profile.ResumeS3Key))
+            {
+                ViewBag.ResumeUrl = GenerateResumeUrl(profile.ResumeS3Key);
+            }
+
             ViewBag.Job = job;
 
             var application = new JobApplication
@@ -784,6 +986,40 @@ namespace JobCareerPlatform.Controllers
             };
 
             return View(application);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ViewResumeForApplication(int jobId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return Challenge();
+            }
+
+            var profile = await _context.JobSeekerProfiles
+                .FirstOrDefaultAsync(p => p.UserId == user.Id);
+
+            if (profile == null || string.IsNullOrWhiteSpace(profile.ResumeS3Key))
+            {
+                TempData["ErrorMessage"] = "No resume has been uploaded.";
+                return RedirectToAction(nameof(ApplyJob), new { id = jobId });
+            }
+
+            var job = await _context.JobPostings
+                .Include(j => j.Employer)
+                .FirstOrDefaultAsync(j => j.JobId == jobId && j.ModerationStatus == "Approved");
+
+            if (job == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.ResumeUrl = GenerateResumeUrl(profile.ResumeS3Key);
+            ViewBag.Job = job;
+
+            return View(profile);
         }
 
         public async Task<IActionResult> RecommendedJobs()
