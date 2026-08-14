@@ -5,21 +5,21 @@
 @{
     var currentUser = await UserManager.GetUserAsync(User);
 
-    if (currentUser?.UserRole == "Job Seeker")
+    if (currentUser?.UserRole == "JobSeeker")
     {
         Layout = "/Views/JobSeeker/_JobSeekerLayout.cshtml";
     }
     else if (currentUser?.UserRole == "Employer")
     {
-        Layout = "/Views/Employer/_EmployerLayout.cshtml";
+        Layout = "/Views/Shared/_EmployerLayout.cshtml";
     }
-    else if (currentUser?.UserRole == "Career Advisor")
+    else if (currentUser?.UserRole == "CareerAdvisor")
     {
-        Layout = "/Views/CareerAdvisor/_CareerAdvisorLayout.cshtml";
+        Layout = "/Views/Shared/_CareerAdvisorLayout.cshtml";
     }
     else
     {
-        Layout = "/Views/Shared/_Layout.cshtml";
+        Layout = "/Views/Shared/_AdminLayout.cshtml";
     }
 }
 
