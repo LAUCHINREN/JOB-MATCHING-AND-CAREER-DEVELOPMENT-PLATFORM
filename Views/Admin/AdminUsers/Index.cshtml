@@ -185,7 +185,23 @@
 
 
                         <td>
-                            @user.UserRole
+                            @{
+                                var displayRole = user.UserRole switch
+                                {
+                                    "JobSeeker" => "Job Seeker",
+                                    "Job Seeker" => "Job Seeker",
+
+                                    "CareerAdvisor" => "Career Advisor",
+                                    "Career Advisor" => "Career Advisor",
+
+                                    "SystemAdmin" => "System Admin",
+                                    "System Admin" => "System Admin",
+
+                                    _ => user.UserRole
+                                };
+                            }
+
+                            @displayRole
                         </td>
 
 

@@ -72,8 +72,16 @@
 
                     @foreach (var role in ViewBag.Roles)
                     {
+                        var displayRole = role switch
+                        {
+                            "JobSeeker" => "Job Seeker",
+                            "CareerAdvisor" => "Career Advisor",
+                            "SystemAdmin" => "System Admin",
+                            _ => role
+                        };
+
                         <option value="@role">
-                            @role
+                            @displayRole
                         </option>
                     }
 

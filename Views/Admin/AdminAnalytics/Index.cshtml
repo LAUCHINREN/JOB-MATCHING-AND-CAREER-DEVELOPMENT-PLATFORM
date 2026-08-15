@@ -1,9 +1,42 @@
 ﻿@using System.Text.Json
+@using System.Text.RegularExpressions
 @model JobCareerPlatform.Models.Admin.AdminAnalyticsViewModel
 
 @{
     ViewData["Title"] = "Analytics";
     Layout = "_AdminLayout";
+
+    string DisplayRole(string? role)
+    {
+        return role switch
+        {
+            "JobSeeker" => "Job Seeker",
+            "Job Seeker" => "Job Seeker",
+
+            "CareerAdvisor" => "Career Advisor",
+            "Career Advisor" => "Career Advisor",
+
+            "SystemAdmin" => "System Admin",
+            "System Admin" => "System Admin",
+
+            "Employer" => "Employer",
+
+            _ => role ?? "-"
+        };
+    }
+
+    string DisplayModule(string? module)
+    {
+        if (string.IsNullOrWhiteSpace(module))
+        {
+            return "-";
+        }
+
+        return Regex.Replace(
+            module,
+            "([a-z0-9])([A-Z])",
+            "$1 $2");
+    }
 }
 
 
@@ -600,7 +633,7 @@
 
 
                             <td>
-                                @activity.UserRole
+                                @DisplayRole(activity.UserRole)
                             </td>
 
 
@@ -610,12 +643,7 @@
 
 
                             <td>
-
-                                @(string.IsNullOrWhiteSpace(
-                                     activity.EntityType)
-                                     ? "-"
-                                     : activity.EntityType)
-
+                                @DisplayModule(activity.EntityType)
                             </td>
 
 

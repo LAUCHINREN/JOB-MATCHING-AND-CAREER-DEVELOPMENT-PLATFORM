@@ -1,8 +1,22 @@
-﻿@model IEnumerable<JobCareerPlatform.Models.UserActivityLogViewModel>
+﻿@using System.Text.RegularExpressions
+@model IEnumerable<JobCareerPlatform.Models.UserActivityLogViewModel>
 
 @{
     ViewData["Title"] = "Activity Monitoring";
     Layout = "_AdminLayout";
+
+    string FormatModule(string? module)
+    {
+        if (string.IsNullOrWhiteSpace(module))
+        {
+            return "-";
+        }
+
+        return Regex.Replace(
+            module,
+            "([a-z0-9])([A-Z])",
+            "$1 $2");
+    }
 }
 
 <div class="mb-4">
@@ -117,11 +131,11 @@
                     {
                         <option value="@item"
                                 selected="@(ViewBag.EntityType == item
-                                                                    ? "selected"
-                                                                    : null)">
-                        @item
-                    </option>
-                                        }
+                                      ? "selected"
+                                      : null)">
+                        @FormatModule(item?.ToString())
+                        </option>
+                    }
 
                 </select>
 
@@ -302,12 +316,7 @@
                         </td>
 
                         <td>
-
-                            @(string.IsNullOrWhiteSpace(
-                                                    activity.EntityType)
-                                                    ? "-"
-                                                    : activity.EntityType)
-
+                            @FormatModule(activity.EntityType)
                         </td>
 
                         <td style="max-width: 300px;">

@@ -43,8 +43,26 @@ namespace JobCareerPlatform.Controllers
 
             if (!string.IsNullOrWhiteSpace(role))
             {
+                string[] matchingRoles = role switch
+                {
+                    "JobSeeker" =>
+                        new[] { "JobSeeker", "Job Seeker" },
+
+                    "CareerAdvisor" =>
+                        new[] { "CareerAdvisor", "Career Advisor" },
+
+                    "SystemAdmin" =>
+                        new[] { "SystemAdmin", "System Admin" },
+
+                    "Employer" =>
+                        new[] { "Employer" },
+
+                    _ =>
+                        new[] { role }
+                };
+
                 users = users.Where(u =>
-                    u.UserRole == role);
+                    matchingRoles.Contains(u.UserRole));
             }
 
             if (!string.IsNullOrWhiteSpace(status))

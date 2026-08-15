@@ -87,7 +87,17 @@
                     </small>
 
                     <div class="fw-semibold mt-1">
-                        @Model.UserRole
+                        @{
+                            var displayRole = Model.UserRole switch
+                            {
+                                "JobSeeker" => "Job Seeker",
+                                "CareerAdvisor" => "Career Advisor",
+                                "SystemAdmin" => "System Admin",
+                                _ => Model.UserRole
+                            };
+                        }
+
+                        @displayRole
                     </div>
 
                 </div>

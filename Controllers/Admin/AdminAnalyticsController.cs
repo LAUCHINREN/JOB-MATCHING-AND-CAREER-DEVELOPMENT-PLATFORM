@@ -42,7 +42,8 @@ namespace JobCareerPlatform.Controllers
 
             model.JobSeekers =
                 await _context.Users.CountAsync(u =>
-                    u.UserRole == "JobSeeker");
+                    u.UserRole == "JobSeeker" ||
+                    u.UserRole == "Job Seeker");
 
             model.Employers =
                 await _context.Users.CountAsync(u =>
@@ -50,11 +51,13 @@ namespace JobCareerPlatform.Controllers
 
             model.CareerAdvisors =
                 await _context.Users.CountAsync(u =>
-                    u.UserRole == "CareerAdvisor");
+                    u.UserRole == "CareerAdvisor" ||
+                    u.UserRole == "Career Advisor");
 
             model.SystemAdmins =
                 await _context.Users.CountAsync(u =>
-                    u.UserRole == "SystemAdmin");
+                    u.UserRole == "SystemAdmin" ||
+                    u.UserRole == "System Admin");
 
 
             // USER ENGAGEMENT
@@ -449,8 +452,9 @@ namespace JobCareerPlatform.Controllers
                 await _context.Users.CountAsync();
 
             int totalJobSeekers =
-                await _context.Users.CountAsync(
-                    u => u.UserRole == "JobSeeker");
+                await _context.Users.CountAsync(u =>
+                    u.UserRole == "JobSeeker" ||
+                    u.UserRole == "Job Seeker");
 
             int totalPublicJobs =
                 await _context.JobPostings.CountAsync(
