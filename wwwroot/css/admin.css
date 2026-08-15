@@ -17,13 +17,18 @@ body.admin-body {
 }
 
 .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 260px;
-    min-height: 100vh;
+    height: 100vh;
     background: #172238;
     color: white;
     padding: 25px 18px;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
+    z-index: 1000;
 }
 
 .admin-brand {
@@ -152,8 +157,9 @@ body.admin-body {
 
 
 .admin-main {
-    flex: 1;
-    min-width: 0;
+    margin-left: 260px;
+    width: calc(100% - 260px);
+    min-height: 100vh;
 }
 
 .admin-topbar {
@@ -272,7 +278,7 @@ body.admin-body {
     }
 
     .admin-navigation {
-        display: flex;
+        flex: 1;
         flex-wrap: wrap;
     }
 
@@ -281,7 +287,7 @@ body.admin-body {
     }
 
     .sidebar-footer {
-        margin-top: 15px;
+        margin-top: auto;
     }
 
     .admin-content {

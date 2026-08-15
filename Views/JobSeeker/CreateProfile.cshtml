@@ -205,17 +205,10 @@
                                 </label>
 
                                 <select asp-for="PreferredJobCategory"
+                                        asp-items="ViewBag.JobCategories"
                                         class="form-select form-select-lg">
 
                                     <option value="">Select job category</option>
-                                    <option>Software Development</option>
-                                    <option>Data & Analytics</option>
-                                    <option>Cybersecurity</option>
-                                    <option>Cloud Computing</option>
-                                    <option>UI/UX Design</option>
-                                    <option>Quality Assurance</option>
-                                    <option>Project Management</option>
-                                    <option>Other</option>
                                 </select>
 
                                 <span asp-validation-for="PreferredJobCategory"

@@ -3,6 +3,7 @@ using JobCareerPlatform.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Amazon;
 using Amazon.Runtime;
@@ -29,6 +30,17 @@ namespace JobCareerPlatform.Controllers
             _context = context;
             _userManager = userManager;
             _configuration = configuration;
+        }
+
+        private async Task PopulateJobCategoryDropdown()
+        {
+            ViewBag.JobCategories = new SelectList(
+                await _context.JobCategories
+                    .Where(c => c.CategoryStatus == "Active")
+                    .OrderBy(c => c.CategoryName)
+                    .Select(c => c.CategoryName)
+                    .Distinct()
+                    .ToListAsync());
         }
 
         private AmazonS3Client CreateS3Client()
@@ -216,7 +228,7 @@ namespace JobCareerPlatform.Controllers
             var jobs = await _context.JobPostings
                 .Include(j => j.Employer)
                 .Include(j => j.JobCategory)
-                .Where(j => j.ModerationStatus == "Approved")
+                .Where(j => j.ModerationStatus == "Approved" && j.VacancyStatus == "Open")
                 .ToListAsync();
 
 
@@ -293,7 +305,7 @@ namespace JobCareerPlatform.Controllers
 
             //ViewBag.RecommendedJobCount = recommendations.Count;
             var totalJobCount = await _context.JobPostings
-                .CountAsync(j => j.ModerationStatus == "Approved");
+                .CountAsync(j => j.ModerationStatus == "Approved" && j.VacancyStatus == "Open");
 
             ViewBag.TotalJobCount = totalJobCount;
 
@@ -377,6 +389,7 @@ namespace JobCareerPlatform.Controllers
                 FullName = user.FullName
             };
 
+            await PopulateJobCategoryDropdown();
             return View(profile);
         }
 
@@ -408,6 +421,7 @@ namespace JobCareerPlatform.Controllers
 
                 if (!ModelState.IsValid)
                 {
+                    await PopulateJobCategoryDropdown();
                     return View(profile);
                 }
 
@@ -416,6 +430,7 @@ namespace JobCareerPlatform.Controllers
 
             if (!ModelState.IsValid)
             {
+                await PopulateJobCategoryDropdown();
                 return View(profile);
             }
 
@@ -461,6 +476,7 @@ namespace JobCareerPlatform.Controllers
 
             ViewBag.ReturnJobId = returnJobId;
 
+            await PopulateJobCategoryDropdown();
             return View(profile);
         }
 
@@ -500,6 +516,7 @@ namespace JobCareerPlatform.Controllers
                     }
 
                     ViewBag.ReturnJobId = returnJobId;
+                    await PopulateJobCategoryDropdown();
                     return View(profile);
                 }
 
@@ -516,6 +533,7 @@ namespace JobCareerPlatform.Controllers
                 }
 
                 ViewBag.ReturnJobId = returnJobId;
+                await PopulateJobCategoryDropdown();
                 return View(profile);
             }
 
@@ -791,7 +809,7 @@ namespace JobCareerPlatform.Controllers
             var jobsQuery = _context.JobPostings
                 .Include(j => j.Employer)
                 .Include(j => j.JobCategory)
-                .Where(j => j.ModerationStatus == "Approved")
+                .Where(j => j.ModerationStatus == "Approved" && j.VacancyStatus == "Open")
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(searchString))
@@ -834,7 +852,7 @@ namespace JobCareerPlatform.Controllers
                 .Include(j => j.JobCategory)
                 .FirstOrDefaultAsync(j =>
                     j.JobId == id &&
-                    j.ModerationStatus == "Approved");
+                    j.ModerationStatus == "Approved" && j.VacancyStatus == "Open");
 
             if (job == null)
             {
@@ -865,7 +883,7 @@ namespace JobCareerPlatform.Controllers
             var job = await _context.JobPostings
                 .FirstOrDefaultAsync(j =>
                     j.JobId == application.JobId &&
-                    j.ModerationStatus == "Approved");
+                    j.ModerationStatus == "Approved" && j.VacancyStatus == "Open");
 
             if (job == null)
             {
@@ -1009,7 +1027,7 @@ namespace JobCareerPlatform.Controllers
 
             var job = await _context.JobPostings
                 .Include(j => j.Employer)
-                .FirstOrDefaultAsync(j => j.JobId == jobId && j.ModerationStatus == "Approved");
+                .FirstOrDefaultAsync(j => j.JobId == jobId && j.ModerationStatus == "Approved" && j.VacancyStatus == "Open");
 
             if (job == null)
             {
@@ -1042,7 +1060,7 @@ namespace JobCareerPlatform.Controllers
             var jobs = await _context.JobPostings
                 .Include(j => j.Employer)
                 .Include(j => j.JobCategory)
-                .Where(j => j.ModerationStatus == "Approved")
+                .Where(j => j.ModerationStatus == "Approved" && j.VacancyStatus == "Open")
                 .ToListAsync();
 
             var recommendedJobs = jobs

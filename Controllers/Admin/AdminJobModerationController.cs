@@ -140,6 +140,9 @@ namespace JobCareerPlatform.Controllers
             job.ModerationStatus =
                 "Approved";
 
+            job.VacancyStatus =
+                "Open";
+
             job.ModeratedAt =
                 DateTime.UtcNow;
 

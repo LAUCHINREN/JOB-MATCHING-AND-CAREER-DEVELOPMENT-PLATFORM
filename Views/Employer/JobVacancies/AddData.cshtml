@@ -35,9 +35,17 @@
         <span asp-validation-for="RequiredSkills" class="text-danger"></span>
     </div>
 
-    <div class="form-floating mb-3">
-        <input asp-for="Qualification" class="form-control" />
-        <label asp-for="Qualification"></label>
+    <div class="mb-3">
+        <label asp-for="Qualification" class="form-label"></label>
+        <select asp-for="Qualification" class="form-select">
+            <option value="">Select qualification</option>
+            <option>Diploma</option>
+            <option>Bachelor's Degree</option>
+            <option>Master's Degree</option>
+            <option>Doctorate</option>
+            <option>Professional Certificate</option>
+            <option>Other</option>
+        </select>
         <span asp-validation-for="Qualification" class="text-danger"></span>
     </div>
 
