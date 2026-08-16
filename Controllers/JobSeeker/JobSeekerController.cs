@@ -960,16 +960,21 @@ namespace JobCareerPlatform.Controllers
                 return Challenge();
             }
 
+            // Load job with related data
             var job = await _context.JobPostings
+                .Include(j => j.Employer)
+                .Include(j => j.JobCategory)
                 .FirstOrDefaultAsync(j =>
                     j.JobId == id &&
-                    j.ModerationStatus == "Approved");
+                    j.ModerationStatus == "Approved" &&
+                    j.VacancyStatus == "Open");
 
             if (job == null)
             {
                 return NotFound();
             }
 
+            // Check whether the user has already applied
             var alreadyApplied = await _context.JobApplications
                 .AnyAsync(a =>
                     a.UserId == user.Id &&
@@ -986,18 +991,33 @@ namespace JobCareerPlatform.Controllers
                 );
             }
 
+            // Load job seeker profile
             var profile = await _context.JobSeekerProfiles
-                .FirstOrDefaultAsync(p => p.UserId == user.Id);
+                .FirstOrDefaultAsync(p =>
+                    p.UserId == user.Id);
 
             ViewBag.Profile = profile;
 
-            if (profile != null && !string.IsNullOrWhiteSpace(profile.ResumeS3Key))
+            // Generate resume URL if resume exists
+            if (profile != null &&
+                !string.IsNullOrWhiteSpace(profile.ResumeS3Key))
             {
-                ViewBag.ResumeUrl = GenerateResumeUrl(profile.ResumeS3Key);
+                ViewBag.ResumeUrl =
+                    GenerateResumeUrl(profile.ResumeS3Key);
             }
 
+            // Load company profile using EmployerId
+            var companyProfile = await _context.CompanyProfileTable
+                .FirstOrDefaultAsync(c => c.UserId == job.EmployerId);
+
+            // Send company name to view
+            ViewBag.CompanyName =
+                companyProfile?.CompanyName ?? "Unknown Company";
+
+            // Send job to view
             ViewBag.Job = job;
 
+            // Create new application model
             var application = new JobApplication
             {
                 JobId = id
@@ -1149,13 +1169,47 @@ namespace JobCareerPlatform.Controllers
                 return Challenge();
             }
 
+            // Get current user's applications
             var applications = await _context.JobApplications
                 .Where(a => a.UserId == user.Id)
                 .OrderByDescending(a => a.AppliedDate)
                 .ToListAsync();
 
-            ViewBag.Jobs = await _context.JobPostings
-                .ToDictionaryAsync(j => j.JobId);
+            // Get only jobs related to these applications
+            var jobIds = applications
+                .Select(a => a.JobId)
+                .Distinct()
+                .ToList();
+
+            var jobs = await _context.JobPostings
+                .Include(j => j.JobCategory)
+                .Where(j => jobIds.Contains(j.JobId))
+                .ToListAsync();
+
+            ViewBag.Jobs = jobs
+                .ToDictionary(j => j.JobId);
+
+            // Get employer IDs from those jobs
+            var employerIds = jobs
+                .Select(j => j.EmployerId)
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct()
+                .ToList();
+
+            // Get company profiles
+            var companyProfiles = await _context.CompanyProfileTable
+                .Where(c => employerIds.Contains(c.UserId))
+                .ToListAsync();
+
+            // Dictionary:
+            // Employer ApplicationUser Id -> Company Name
+            ViewBag.Companies = companyProfiles
+                .ToDictionary(
+                    c => c.UserId,
+                    c => !string.IsNullOrWhiteSpace(c.CompanyName)
+                        ? c.CompanyName
+                        : "Company unavailable"
+                );
 
             return View(applications);
         }
@@ -1189,10 +1243,25 @@ namespace JobCareerPlatform.Controllers
             }
 
             var job = await _context.JobPostings
+                .Include(j => j.JobCategory)
                 .FirstOrDefaultAsync(j =>
                     j.JobId == application.JobId);
 
+            if (job == null)
+            {
+                return NotFound();
+            }
+
+            var companyProfile = await _context.CompanyProfileTable
+                .FirstOrDefaultAsync(c =>
+                    c.UserId == job.EmployerId);
+
             ViewBag.Job = job;
+
+            ViewBag.CompanyName =
+                !string.IsNullOrWhiteSpace(companyProfile?.CompanyName)
+                    ? companyProfile.CompanyName
+                    : "Unknown Company";
 
             return View(application);
         }

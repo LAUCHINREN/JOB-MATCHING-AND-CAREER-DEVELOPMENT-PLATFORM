@@ -4,7 +4,11 @@
     Layout = "_JobSeekerLayout";
     ViewData["Title"] = "Edit Application";
 
-    var job = ViewBag.Job as JobCareerPlatform.Models.JobPosting;
+    var job =
+        ViewBag.Job as JobCareerPlatform.Models.JobPosting;
+
+    string companyName =
+        ViewBag.CompanyName as string ?? "Unknown Company";
 }
 
 <div class="py-3">
@@ -50,6 +54,8 @@
 
                         <form asp-action="EditApplication"
                               method="post">
+
+                            @Html.AntiForgeryToken()
 
                             <input type="hidden"
                                    asp-for="JobApplicationId" />
@@ -140,30 +146,44 @@
 
                         @if (job != null)
                         {
-                            <h5 class="fw-bold mb-1">
-                                @job.JobTitle
-                            </h5>
+                        <h5 class="fw-bold mb-1">
+                            @job.JobTitle
+                        </h5>
 
-                            <div class="text-muted mb-3">
-                                @(job.Employer?.FullName ?? "Unknown Employer")
-                            </div>
+                        <div class="text-muted mb-3">
+                            @companyName
+                        </div>
 
-                            <hr />
+                        <hr />
 
-                            <div class="job-detail">
-                                <i class="bi bi-geo-alt"></i>
-                                @job.Location
-                            </div>
+                        <div class="job-detail">
+                            <i class="bi bi-geo-alt"></i>
 
-                            <div class="job-detail">
-                                <i class="bi bi-briefcase"></i>
-                                @job.EmploymentType
-                            </div>
+                            @(string.IsNullOrWhiteSpace(job.Location)
+                                    ? "Not specified"
+                                    : job.Location)
+                        </div>
 
-                            <div class="job-detail">
-                                <i class="bi bi-grid"></i>
-                                @(job.JobCategory?.CategoryName ?? "Uncategorized")
-                            </div>
+                        <div class="job-detail">
+                            <i class="bi bi-briefcase"></i>
+
+                            @(string.IsNullOrWhiteSpace(job.EmploymentType)
+                                    ? "Not specified"
+                                    : job.EmploymentType)
+                        </div>
+
+                        <div class="job-detail">
+                            <i class="bi bi-grid"></i>
+
+                            @(job.JobCategory?.CategoryName
+                                    ?? "Uncategorized")
+                        </div>
+                        }
+                        else
+                        {
+                        <div class="alert alert-warning mb-0">
+                            Job information could not be loaded.
+                        </div>
                         }
 
                         <hr />
@@ -308,7 +328,6 @@
                 width: 100%;
             }
     }
-
 </style>
 
 
@@ -327,6 +346,7 @@
         function updateCharacterCount() {
 
             if (coverMessage && characterCount) {
+
                 characterCount.textContent =
                     coverMessage.value.length;
             }
