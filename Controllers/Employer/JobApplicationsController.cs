@@ -44,7 +44,7 @@ namespace JobCareerPlatform.Controllers
             }
 
             List<JobPosting> myVacancies = await _context.JobPostings
-                .Where(v => v.EmployerId == userId)
+                .Where(v => v.EmployerId == userId && v.VacancyStatus == "Open")
                 .OrderBy(v => v.JobTitle)
                 .ToListAsync();
 
