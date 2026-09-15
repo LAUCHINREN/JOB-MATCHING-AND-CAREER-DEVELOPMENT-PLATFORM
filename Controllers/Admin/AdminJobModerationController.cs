@@ -1,10 +1,12 @@
 ﻿using JobCareerPlatform.Data;
 using JobCareerPlatform.Models;
 using JobCareerPlatform.Models.Admin;
+using JobCareerPlatform.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace JobCareerPlatform.Controllers
 {
@@ -14,12 +16,22 @@ namespace JobCareerPlatform.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
 
+        private readonly IMicroserviceGateway _microservices;
+        private readonly MicroserviceOptions _microserviceOptions;
+        private readonly ILogger<AdminJobModerationController> _logger;
+
         public AdminJobModerationController(
             ApplicationDbContext context,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IMicroserviceGateway microservices,
+            IOptions<MicroserviceOptions> microserviceOptions,
+            ILogger<AdminJobModerationController> logger)
         {
             _context = context;
             _userManager = userManager;
+            _microservices = microservices;
+            _microserviceOptions = microserviceOptions.Value;
+            _logger = logger;
         }
 
         // LIST / SEARCH / FILTER
@@ -160,12 +172,105 @@ namespace JobCareerPlatform.Controllers
 
             await _context.SaveChangesAsync();
 
+            await PublishJobAlertAsync(job);
+
             TempData["SuccessMessage"] =
                 "Job posting approved successfully.";
 
             return RedirectToAction(
                 nameof(Details),
                 new { id });
+        }
+
+        private async Task PublishJobAlertAsync(JobPosting job)
+        {
+            if (!_microservices.IsConfigured)
+            {
+                return;
+            }
+
+            JobPosting? detailed = await _context.JobPostings
+                .AsNoTracking()
+                .Include(j => j.Employer)
+                .Include(j => j.JobCategory)
+                .FirstOrDefaultAsync(j => j.JobId == job.JobId);
+
+            if (detailed == null)
+            {
+                return;
+            }
+
+            List<string> matchedJobSeekerIds = await GetMatchedJobSeekerIdsAsync(detailed);
+
+            if (matchedJobSeekerIds.Count == 0)
+            {
+                return;
+            }
+
+            MicroserviceResult<JobAlertResult> result =
+                await _microservices.PostAsync<JobAlertResult>(
+                    _microserviceOptions.JobAlertPath,
+                    new
+                    {
+                        detailed.JobId,
+                        detailed.JobTitle,
+                        CompanyName = detailed.Employer?.FullName,
+                        detailed.Location,
+                        detailed.EmploymentType,
+                        JobCategory = detailed.JobCategory?.CategoryName,
+                        detailed.RequiredSkills,
+                        detailed.SalaryMin,
+                        detailed.SalaryMax,
+                        MatchedJobSeekerIds = matchedJobSeekerIds
+                    });
+
+            if (result.Succeeded)
+            {
+                _logger.LogInformation(
+                    "Job alert for vacancy {JobId} handed to the job-alert microservice for {Count} matched job seeker(s).",
+                    job.JobId, matchedJobSeekerIds.Count);
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "Job alert microservice unavailable ({Error}). Approval of vacancy {JobId} was not affected.",
+                    result.Error, job.JobId);
+            }
+        }
+
+        private async Task<List<string>> GetMatchedJobSeekerIdsAsync(JobPosting job)
+        {
+            string? categoryName = job.JobCategory?.CategoryName;
+
+            List<string> requiredSkills = ResourceMatcher.SplitTags(job.RequiredSkills);
+
+            List<JobSeekerProfile> profiles = await _context.JobSeekerProfiles.ToListAsync();
+
+            List<string> matchedIds = new();
+
+            foreach (JobSeekerProfile profile in profiles)
+            {
+                bool categoryMatches =
+                    !string.IsNullOrWhiteSpace(categoryName)
+                    && !string.IsNullOrWhiteSpace(profile.PreferredJobCategory)
+                    && string.Equals(
+                        profile.PreferredJobCategory.Trim(),
+                        categoryName.Trim(),
+                        StringComparison.OrdinalIgnoreCase);
+
+                bool fieldMatches =
+                    !string.IsNullOrWhiteSpace(profile.FieldOfStudy)
+                    && requiredSkills.Any(skill =>
+                        skill.Contains(profile.FieldOfStudy.Trim(), StringComparison.OrdinalIgnoreCase)
+                        || profile.FieldOfStudy.Trim().Contains(skill, StringComparison.OrdinalIgnoreCase));
+
+                if (categoryMatches || fieldMatches)
+                {
+                    matchedIds.Add(profile.UserId);
+                }
+            }
+
+            return matchedIds;
         }
 
         // REJECT - GET

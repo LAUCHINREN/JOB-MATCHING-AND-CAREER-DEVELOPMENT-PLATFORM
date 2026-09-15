@@ -1,0 +1,9 @@
+{
+  "body": "{\"applicationId\":101,\"jobId\":5,\"jobTitle\":\"Junior Software Engineer\",\"employerName\":\"Acme Technologies\",\"jobSeekerId\":\"REPLACE-WITH-A-REAL-JOBSEEKER-USERID\",\"jobSeekerName\":\"Test Applicant\",\"appliedDate\":\"2026-09-15T10:30:00\"}",
+  "isBase64Encoded": false,
+  "httpMethod": "POST",
+  "path": "/job-applications",
+  "headers": {
+    "Content-Type": "application/json"
+  }
+}

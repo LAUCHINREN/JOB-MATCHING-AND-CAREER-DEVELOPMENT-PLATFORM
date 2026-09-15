@@ -7,9 +7,23 @@
     <UserSecretsId>aspnet-JobCareerPlatform-Final-8f2c7a41-9d3b-4e6a-b7c5-1a2f6e9d4c80</UserSecretsId>
   </PropertyGroup>
 
+  <!-- The Task #2 microservices live in Lambdas\ inside this folder so they are covered by the
+       same Git repository, but they are standalone net8.0 Lambda projects with their own
+       dependencies. Without these Remove items the web SDK's default globbing would try to
+       compile their sources into the MVC app and publish them to Elastic Beanstalk. -->
+  <ItemGroup>
+    <Compile Remove="Lambdas\**" />
+    <Content Remove="Lambdas\**" />
+    <None Remove="Lambdas\**" />
+    <EmbeddedResource Remove="Lambdas\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="AWSSDK.S3" Version="4.0.102" />
     <PackageReference Include="AWSSDK.SimpleNotificationService" Version="4.0.0.5" />
+    <PackageReference Include="AWSXRayRecorder.Core" Version="2.16.0" />
+    <PackageReference Include="AWSXRayRecorder.Handlers.AspNetCore" Version="2.13.0" />
+    <PackageReference Include="AWSXRayRecorder.Handlers.AwsSdk" Version="2.14.0" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.18" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.18" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.18" />

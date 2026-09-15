@@ -1,5 +1,6 @@
 using JobCareerPlatform.Data;
 using JobCareerPlatform.Models;
+using JobCareerPlatform.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace JobCareerPlatform.Controllers
 {
@@ -20,11 +22,24 @@ namespace JobCareerPlatform.Controllers
 
         private readonly IConfiguration _configuration;
 
-        public CompanyProfilesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        private readonly IMicroserviceGateway _microservices;
+        private readonly MicroserviceOptions _microserviceOptions;
+        private readonly ILogger<CompanyProfilesController> _logger;
+
+        public CompanyProfilesController(
+            ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager,
+            IConfiguration configuration,
+            IMicroserviceGateway microservices,
+            IOptions<MicroserviceOptions> microserviceOptions,
+            ILogger<CompanyProfilesController> logger)
         {
             _context = context;
             _userManager = userManager;
             _configuration = configuration;
+            _microservices = microservices;
+            _microserviceOptions = microserviceOptions.Value;
+            _logger = logger;
         }
 
         // GET: CompanyProfiles
@@ -124,12 +139,60 @@ namespace JobCareerPlatform.Controllers
                 return;
             }
 
-            var credentials = new SessionAWSCredentials(
-                _configuration["AWS:AccessKey"],
-                _configuration["AWS:SecretKey"],
-                _configuration["AWS:SessionToken"]);
+            if (_microservices.IsConfigured && await UploadLogoViaMicroserviceAsync(profile, logoFile))
+            {
+                return;
+            }
 
-            using var client = new AmazonS3Client(credentials, RegionEndpoint.USEast1);
+            await UploadLogoInProcessAsync(profile, logoFile);
+        }
+
+        private async Task<bool> UploadLogoViaMicroserviceAsync(CompanyProfile profile, IFormFile logoFile)
+        {
+            string contentBase64;
+
+            using (var buffer = new MemoryStream())
+            {
+                await logoFile.CopyToAsync(buffer);
+                contentBase64 = Convert.ToBase64String(buffer.ToArray());
+            }
+
+            MicroserviceResult<CompanyMediaResult> result =
+                await _microservices.PostAsync<CompanyMediaResult>(
+                    _microserviceOptions.CompanyMediaPath,
+                    new
+                    {
+                        profile.CompanyProfileId,
+                        profile.CompanyName,
+                        logoFile.FileName,
+                        logoFile.ContentType,
+                        ContentBase64 = contentBase64
+                    });
+
+            if (result.Succeeded && result.Value?.Uploaded == true)
+            {
+                profile.LogoS3Key = result.Value.Key;
+                profile.LogoUrl = result.Value.Url;
+
+                _logger.LogInformation(
+                    "Logo for company profile {ProfileId} stored by the company-media microservice.",
+                    profile.CompanyProfileId);
+
+                return true;
+            }
+
+            _logger.LogWarning(
+                "Company media microservice unavailable ({Error}); falling back to in-process S3 upload.",
+                result.Error ?? result.Value?.Reason);
+
+            return false;
+        }
+
+        private async Task UploadLogoInProcessAsync(CompanyProfile profile, IFormFile logoFile)
+        {
+            var credentials = AwsCredentialsFactory.Create(_configuration);
+
+            using var client = new AmazonS3Client(credentials, AwsCredentialsFactory.GetRegion(_configuration));
 
             string bucketName = _configuration["AWS:LogoBucketName"]!;
             string key = $"logos/id-{profile.CompanyProfileId}-company-{profile.CompanyName}/{logoFile.FileName}";

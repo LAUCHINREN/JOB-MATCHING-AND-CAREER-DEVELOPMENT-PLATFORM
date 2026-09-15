@@ -1,0 +1,18 @@
+{
+  "Information": [
+    "Deploy with: dotnet lambda deploy-function --project-location Lambdas/ApplicationIntakeService",
+    "The execution role JobCareerPlatformLambdaRole must exist in IAM before deploying."
+  ],
+  "profile": "default",
+  "region": "ap-southeast-2",
+  "configuration": "Release",
+  "function-runtime": "dotnet8",
+  "function-memory-size": 256,
+  "function-timeout": 15,
+  "function-handler": "ApplicationIntakeService::ApplicationIntakeService.Function::FunctionHandler",
+  "function-name": "application-intake-service",
+  "function-description": "Job Seeker microservice - accepts submitted applications and queues them on SQS",
+  "function-role": "arn:aws:iam::209115427365:role/JobCareerPlatformLambdaRole",
+  "tracing-mode": "Active",
+  "environment-variables": "APPLICATION_QUEUE_URL=https://sqs.ap-southeast-2.amazonaws.com/209115427365/job-application-queue"
+}

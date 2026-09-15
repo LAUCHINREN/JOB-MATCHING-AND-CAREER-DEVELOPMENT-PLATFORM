@@ -1,5 +1,6 @@
 using JobCareerPlatform.Data;
 using JobCareerPlatform.Models;
+using JobCareerPlatform.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -205,12 +206,9 @@ namespace JobCareerPlatform.Controllers
                 return NotFound();
             }
 
-            var credentials = new SessionAWSCredentials(
-                _configuration["AWS:AccessKey"],
-                _configuration["AWS:SecretKey"],
-                _configuration["AWS:SessionToken"]);
+            var credentials = AwsCredentialsFactory.Create(_configuration);
 
-            using var client = new AmazonS3Client(credentials, RegionEndpoint.USEast1);
+            using var client = new AmazonS3Client(credentials, AwsCredentialsFactory.GetRegion(_configuration));
 
             string url = client.GetPreSignedURL(new GetPreSignedUrlRequest
             {

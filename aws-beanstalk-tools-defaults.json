@@ -1,0 +1,14 @@
+{
+  "region": "ap-southeast-2",
+  "configuration": "Release",
+  "framework": "net10.0",
+  "self-contained": false,
+  "application": "JobCareerPlatform",
+  "environment": "JobCareerPlatform-dev",
+  "environment-type": "SingleInstance",
+  "instance-type": "t3.micro",
+  "enable-xray": true,
+  "enhanced-health-type": "enhanced",
+  "instance-profile": "aws-elasticbeanstalk-ec2-role",
+  "service-role": "aws-elasticbeanstalk-service-role"
+}

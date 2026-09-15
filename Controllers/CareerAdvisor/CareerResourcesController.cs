@@ -1,9 +1,11 @@
 using JobCareerPlatform.Data;
 using JobCareerPlatform.Models;
+using JobCareerPlatform.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
@@ -20,12 +22,24 @@ namespace JobCareerPlatform.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly IMicroserviceGateway _microservices;
+        private readonly MicroserviceOptions _microserviceOptions;
+        private readonly ILogger<CareerResourcesController> _logger;
 
-        public CareerResourcesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        public CareerResourcesController(
+            ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager,
+            IConfiguration configuration,
+            IMicroserviceGateway microservices,
+            IOptions<MicroserviceOptions> microserviceOptions,
+            ILogger<CareerResourcesController> logger)
         {
             _context = context;
             _userManager = userManager;
             _configuration = configuration;
+            _microservices = microservices;
+            _microserviceOptions = microserviceOptions.Value;
+            _logger = logger;
         }
 
         // GET: CareerResources — resources this advisor has authored
@@ -126,12 +140,9 @@ namespace JobCareerPlatform.Controllers
                 return;
             }
 
-            var credentials = new SessionAWSCredentials(
-                _configuration["AWS:AccessKey"],
-                _configuration["AWS:SecretKey"],
-                _configuration["AWS:SessionToken"]);
+            var credentials = AwsCredentialsFactory.Create(_configuration);
 
-            using var client = new AmazonS3Client(credentials, RegionEndpoint.USEast1);
+            using var client = new AmazonS3Client(credentials, AwsCredentialsFactory.GetRegion(_configuration));
 
             string bucketName = _configuration["AWS:ResourceAttachmentBucketName"]!;
             string key = $"career-resources/id-{resource.CareerResourceId}-{resource.Title}/{attachmentFile.FileName}";
@@ -272,27 +283,51 @@ namespace JobCareerPlatform.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // Only reaches job seekers this resource actually matches (same ResourceMatcher logic
-        // used by JobSeeker/MyRecommendations). SNS delivers to a subscriber only if the
-        // message's "jobseeker_id" attribute intersects with that subscriber's own FilterPolicy
-        // (set at subscribe time in JobSeekerController.SubscribeToResourceUpdates) — this is
-        // what makes a single shared topic behave like a per-recipient targeted notification.
-        // No-ops if the topic ARN isn't configured, or if nobody matches, so it's safe to call unconditionally.
         private async Task PublishNotificationAsync(CareerResource resource)
+        {
+            List<string> matchedJobSeekerIds = await GetMatchedJobSeekerIdsAsync(resource);
+            if (matchedJobSeekerIds.Count == 0) return;
+
+            if (_microservices.IsConfigured)
+            {
+                MicroserviceResult<ResourceNotificationResult> result =
+                    await _microservices.PostAsync<ResourceNotificationResult>(
+                        _microserviceOptions.ResourceNotificationPath,
+                        new
+                        {
+                            ResourceId = resource.CareerResourceId,
+                            resource.Title,
+                            resource.Description,
+                            resource.ResourceType,
+                            resource.AttachmentUrl,
+                            MatchedJobSeekerIds = matchedJobSeekerIds
+                        });
+
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation(
+                        "Resource {ResourceId} handed to the notification microservice for {Count} matched job seeker(s).",
+                        resource.CareerResourceId, matchedJobSeekerIds.Count);
+                    return;
+                }
+
+                _logger.LogWarning(
+                    "Notification microservice unavailable ({Error}); falling back to in-process SNS publish.",
+                    result.Error);
+            }
+
+            await PublishNotificationInProcessAsync(resource, matchedJobSeekerIds);
+        }
+
+        private async Task PublishNotificationInProcessAsync(CareerResource resource, List<string> matchedJobSeekerIds)
         {
             string? topicArn = _configuration["AWS:CareerResourceTopicArn"];
             if (string.IsNullOrWhiteSpace(topicArn)) return;
 
-            List<string> matchedJobSeekerIds = await GetMatchedJobSeekerIdsAsync(resource);
-            if (matchedJobSeekerIds.Count == 0) return;
-
-            var credentials = new SessionAWSCredentials(
-                _configuration["AWS:AccessKey"],
-                _configuration["AWS:SecretKey"],
-                _configuration["AWS:SessionToken"]);
+            var credentials = AwsCredentialsFactory.Create(_configuration);
 
             using var snsClient = new AmazonSimpleNotificationServiceClient(
-                credentials, RegionEndpoint.USEast1);
+                credentials, AwsCredentialsFactory.GetRegion(_configuration));
 
             var publishRequest = new PublishRequest
             {

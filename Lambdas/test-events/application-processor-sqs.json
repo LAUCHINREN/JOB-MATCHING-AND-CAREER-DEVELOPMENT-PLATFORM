@@ -1,0 +1,25 @@
+{
+  "Records": [
+    {
+      "messageId": "11111111-2222-3333-4444-555555555555",
+      "receiptHandle": "test-receipt-handle",
+      "body": "{\"applicationId\":101,\"jobId\":5,\"jobTitle\":\"Junior Software Engineer\",\"employerName\":\"Acme Technologies\",\"jobSeekerId\":\"REPLACE-WITH-A-REAL-JOBSEEKER-USERID\",\"jobSeekerName\":\"Test Applicant\",\"appliedDate\":\"2026-09-15T10:30:00\"}",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1789000000000",
+        "SenderId": "AIDATESTSENDERID",
+        "ApproximateFirstReceiveTimestamp": "1789000000001"
+      },
+      "messageAttributes": {
+        "eventType": {
+          "stringValue": "ApplicationSubmitted",
+          "dataType": "String"
+        }
+      },
+      "md5OfBody": "00000000000000000000000000000000",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:ap-southeast-2:000000000000:job-application-queue",
+      "awsRegion": "ap-southeast-2"
+    }
+  ]
+}

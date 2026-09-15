@@ -1,9 +1,11 @@
 ﻿using JobCareerPlatform.Data;
 using JobCareerPlatform.Models;
 using JobCareerPlatform.Models.Admin;
+using JobCareerPlatform.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace JobCareerPlatform.Controllers
 {
@@ -11,10 +13,20 @@ namespace JobCareerPlatform.Controllers
     public class AdminAnalyticsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMicroserviceGateway _microservices;
+        private readonly MicroserviceOptions _microserviceOptions;
+        private readonly ILogger<AdminAnalyticsController> _logger;
+
         public AdminAnalyticsController(
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IMicroserviceGateway microservices,
+            IOptions<MicroserviceOptions> microserviceOptions,
+            ILogger<AdminAnalyticsController> logger)
         {
             _context = context;
+            _microservices = microservices;
+            _microserviceOptions = microserviceOptions.Value;
+            _logger = logger;
         }
 
 
@@ -586,10 +598,74 @@ namespace JobCareerPlatform.Controllers
                         totalApplications
                 };
 
+            await AttachDownloadLinkAsync(
+                model,
+                await jobSeekersInPeriod.CountAsync(),
+                publicJobs.Count,
+                jobsByCategory.Select(x => new ReportBreakdown(x.Label, x.Count)).ToList(),
+                topRequiredSkills.Select(x => new ReportBreakdown(x.Label, x.Count)).ToList());
+
             return View(
                 "Report",
                 model);
         }
 
+
+        private async Task AttachDownloadLinkAsync(
+            AdminAnalyticsReportViewModel model,
+            int newJobSeekers,
+            int jobsPublished,
+            List<ReportBreakdown> jobsByCategory,
+            List<ReportBreakdown> topRequiredSkills)
+        {
+            if (!_microservices.IsConfigured)
+            {
+                return;
+            }
+
+            var applicationsByStatus = new List<ReportBreakdown>
+            {
+                new("Submitted", model.SubmittedApplications),
+                new("Under Review", model.UnderReviewApplications),
+                new("Shortlisted", model.ShortlistedApplications),
+                new("Interview", model.InterviewApplications),
+                new("Offered", model.OfferedApplications),
+                new("Rejected", model.RejectedApplications)
+            };
+
+            MicroserviceResult<AnalyticsReportResult> result =
+                await _microservices.PostAsync<AnalyticsReportResult>(
+                    _microserviceOptions.AnalyticsReportPath,
+                    new
+                    {
+                        model.DateFrom,
+                        model.DateTo,
+                        GeneratedBy = User.Identity?.Name,
+                        NewJobSeekers = newJobSeekers,
+                        JobsPublished = jobsPublished,
+                        model.ApplicationsSubmitted,
+                        UserActivities = model.ActivitiesRecorded,
+                        JobsByCategory = jobsByCategory,
+                        ApplicationsByStatus = applicationsByStatus,
+                        TopRequiredSkills = topRequiredSkills
+                    });
+
+            if (result.Succeeded && result.Value?.Generated == true)
+            {
+                ViewBag.ReportDownloadUrl = result.Value.DownloadUrl;
+                ViewBag.ReportExpiresInHours = result.Value.ExpiresInHours;
+
+                _logger.LogInformation(
+                    "Analytics report stored in S3 as {CsvKey}.", result.Value.CsvKey);
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "Analytics report microservice did not return a file ({Error}).", result.Error);
+            }
+        }
+
+        // Wire shape the analytics-report microservice expects for each breakdown table.
+        private record ReportBreakdown(string Label, int Count);
     }
 }

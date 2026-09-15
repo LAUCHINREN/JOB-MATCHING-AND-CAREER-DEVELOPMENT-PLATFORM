@@ -1,0 +1,19 @@
+{
+  "Information": [
+    "Deploy with: dotnet lambda deploy-function --project-location Lambdas/ResourceNotificationService",
+    "The execution role JobCareerPlatformLambdaRole must exist in IAM before deploying; it needs",
+    "S3, SNS, SQS, CloudWatch Logs and X-Ray write access."
+  ],
+  "profile": "default",
+  "region": "ap-southeast-2",
+  "configuration": "Release",
+  "function-runtime": "dotnet8",
+  "function-memory-size": 256,
+  "function-timeout": 30,
+  "function-handler": "ResourceNotificationService::ResourceNotificationService.Function::FunctionHandler",
+  "function-name": "resource-notification-service",
+  "function-description": "Career Advisor microservice - publishes targeted career resource notifications via SNS",
+  "function-role": "arn:aws:iam::209115427365:role/JobCareerPlatformLambdaRole",
+  "tracing-mode": "Active",
+  "environment-variables": "CAREER_RESOURCE_TOPIC_ARN=arn:aws:sns:ap-southeast-2:209115427365:career-resource-topic"
+}

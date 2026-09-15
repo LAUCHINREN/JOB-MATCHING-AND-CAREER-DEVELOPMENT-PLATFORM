@@ -1,0 +1,20 @@
+{
+  "Information": [
+    "Deploy with: dotnet lambda deploy-function --project-location Lambdas/ApplicationProcessorService",
+    "This function is triggered by SQS, not API Gateway - after deploying, add the event source",
+    "mapping with ReportBatchItemFailures enabled (see Lambdas/README.md).",
+    "The execution role JobCareerPlatformLambdaRole must exist in IAM before deploying."
+  ],
+  "profile": "default",
+  "region": "ap-southeast-2",
+  "configuration": "Release",
+  "function-runtime": "dotnet8",
+  "function-memory-size": 256,
+  "function-timeout": 60,
+  "function-handler": "ApplicationProcessorService::ApplicationProcessorService.Function::FunctionHandler",
+  "function-name": "application-processor-service",
+  "function-description": "Job Seeker microservice - drains the application queue and sends SNS confirmations",
+  "function-role": "arn:aws:iam::209115427365:role/JobCareerPlatformLambdaRole",
+  "tracing-mode": "Active",
+  "environment-variables": "APPLICATION_STATUS_TOPIC_ARN=arn:aws:sns:ap-southeast-2:209115427365:application-status-topic"
+}

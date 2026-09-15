@@ -1,0 +1,9 @@
+{
+  "body": "{\"dateFrom\":\"2026-08-01T00:00:00\",\"dateTo\":\"2026-09-15T00:00:00\",\"generatedBy\":\"admin@jobcareerplatform.com\",\"newJobSeekers\":24,\"jobsPublished\":11,\"applicationsSubmitted\":57,\"userActivities\":312,\"jobsByCategory\":[{\"label\":\"Information Technology\",\"count\":7},{\"label\":\"Finance\",\"count\":4}],\"applicationsByStatus\":[{\"label\":\"Submitted\",\"count\":30},{\"label\":\"Shortlisted\",\"count\":15},{\"label\":\"Rejected\",\"count\":12}],\"topRequiredSkills\":[{\"label\":\"C#\",\"count\":9},{\"label\":\"SQL\",\"count\":6}]}",
+  "isBase64Encoded": false,
+  "httpMethod": "POST",
+  "path": "/analytics-reports",
+  "headers": {
+    "Content-Type": "application/json"
+  }
+}

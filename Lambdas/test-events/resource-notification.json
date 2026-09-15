@@ -1,0 +1,9 @@
+{
+  "body": "{\"resourceId\":1,\"title\":\"Resume Writing Guide for Graduates\",\"description\":\"A step-by-step guide to writing your first technical resume.\",\"resourceType\":\"Article\",\"attachmentUrl\":\"https://example-bucket.s3.amazonaws.com/career-resources/guide.pdf\",\"matchedJobSeekerIds\":[\"REPLACE-WITH-A-REAL-JOBSEEKER-USERID\"]}",
+  "isBase64Encoded": false,
+  "httpMethod": "POST",
+  "path": "/resource-notifications",
+  "headers": {
+    "Content-Type": "application/json"
+  }
+}

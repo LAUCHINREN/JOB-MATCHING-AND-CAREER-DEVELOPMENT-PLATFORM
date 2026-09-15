@@ -1,0 +1,18 @@
+{
+  "Information": [
+    "Deploy with: dotnet lambda deploy-function --project-location Lambdas/CompanyMediaService",
+    "The execution role JobCareerPlatformLambdaRole must exist in IAM before deploying."
+  ],
+  "profile": "default",
+  "region": "ap-southeast-2",
+  "configuration": "Release",
+  "function-runtime": "dotnet8",
+  "function-memory-size": 512,
+  "function-timeout": 30,
+  "function-handler": "CompanyMediaService::CompanyMediaService.Function::FunctionHandler",
+  "function-name": "company-media-service",
+  "function-description": "Employer microservice - validates and stores company logos in S3",
+  "function-role": "arn:aws:iam::209115427365:role/JobCareerPlatformLambdaRole",
+  "tracing-mode": "Active",
+  "environment-variables": "LOGO_BUCKET_NAME=g6cloudassignment"
+}

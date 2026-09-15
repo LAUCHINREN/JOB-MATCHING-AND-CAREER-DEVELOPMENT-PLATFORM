@@ -1,10 +1,12 @@
 using JobCareerPlatform.Data;
 using JobCareerPlatform.Models;
+using JobCareerPlatform.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
@@ -22,14 +24,24 @@ namespace JobCareerPlatform.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
 
+        private readonly IMicroserviceGateway _microservices;
+        private readonly MicroserviceOptions _microserviceOptions;
+        private readonly ILogger<JobSeekerController> _logger;
+
         public JobSeekerController(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IMicroserviceGateway microservices,
+            IOptions<MicroserviceOptions> microserviceOptions,
+            ILogger<JobSeekerController> logger)
         {
             _context = context;
             _userManager = userManager;
             _configuration = configuration;
+            _microservices = microservices;
+            _microserviceOptions = microserviceOptions.Value;
+            _logger = logger;
         }
 
         private async Task PopulateJobCategoryDropdown()
@@ -45,12 +57,9 @@ namespace JobCareerPlatform.Controllers
 
         private AmazonS3Client CreateS3Client()
         {
-            var credentials = new SessionAWSCredentials(
-                _configuration["AWS:AccessKey"],
-                _configuration["AWS:SecretKey"],
-                _configuration["AWS:SessionToken"]);
+            var credentials = AwsCredentialsFactory.Create(_configuration);
 
-            return new AmazonS3Client(credentials, RegionEndpoint.USEast1);
+            return new AmazonS3Client(credentials, AwsCredentialsFactory.GetRegion(_configuration));
         }
 
         private async Task<string?> UploadResumeAsync(string userId, IFormFile resumeFile)
@@ -881,6 +890,7 @@ namespace JobCareerPlatform.Controllers
             }
 
             var job = await _context.JobPostings
+                .Include(j => j.Employer)
                 .FirstOrDefaultAsync(j =>
                     j.JobId == application.JobId &&
                     j.ModerationStatus == "Approved" && j.VacancyStatus == "Open");
@@ -944,10 +954,50 @@ namespace JobCareerPlatform.Controllers
 
             await _context.SaveChangesAsync();
 
+            await QueueApplicationForProcessingAsync(application, job, applicantProfile);
+
             TempData["SuccessMessage"] =
                 "Application submitted successfully.";
 
             return RedirectToAction(nameof(Applications));
+        }
+
+        private async Task QueueApplicationForProcessingAsync(
+            JobApplication application,
+            JobPosting job,
+            JobSeekerProfile applicantProfile)
+        {
+            if (!_microservices.IsConfigured)
+            {
+                return;
+            }
+
+            MicroserviceResult<ApplicationIntakeResult> result =
+                await _microservices.PostAsync<ApplicationIntakeResult>(
+                    _microserviceOptions.JobApplicationPath,
+                    new
+                    {
+                        ApplicationId = application.JobApplicationId,
+                        application.JobId,
+                        job.JobTitle,
+                        EmployerName = job.Employer?.FullName,
+                        JobSeekerId = application.UserId,
+                        JobSeekerName = applicantProfile.FullName,
+                        application.AppliedDate
+                    });
+
+            if (result.Succeeded)
+            {
+                _logger.LogInformation(
+                    "Application {ApplicationId} queued for asynchronous processing.",
+                    application.JobApplicationId);
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "Application {ApplicationId} could not be queued ({Error}). The application itself was saved successfully.",
+                    application.JobApplicationId, result.Error);
+            }
         }
 
         [HttpGet]
@@ -1624,13 +1674,10 @@ namespace JobCareerPlatform.Controllers
                 return RedirectToAction(nameof(CareerResources));
             }
 
-            var credentials = new SessionAWSCredentials(
-                _configuration["AWS:AccessKey"],
-                _configuration["AWS:SecretKey"],
-                _configuration["AWS:SessionToken"]);
+            var credentials = AwsCredentialsFactory.Create(_configuration);
 
             using var snsClient = new AmazonSimpleNotificationServiceClient(
-                credentials, RegionEndpoint.USEast1);
+                credentials, AwsCredentialsFactory.GetRegion(_configuration));
 
             string filterPolicy = JsonSerializer.Serialize(new Dictionary<string, string[]>
             {

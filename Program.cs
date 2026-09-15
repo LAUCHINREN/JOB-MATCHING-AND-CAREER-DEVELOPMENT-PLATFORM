@@ -1,10 +1,18 @@
+using System.Diagnostics;
+using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using JobCareerPlatform.Data;
+using JobCareerPlatform.Services;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+AWSXRayRecorder.InitializeInstance(builder.Configuration);
+AWSSDKHandler.RegisterXRayForAllServices();
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -23,9 +31,12 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(
 
 builder.Services.AddControllersWithViews();
 
-// Views are grouped by role under Views/Admin/{Controller}/ and Views/Employer/{Controller}/
-// (JobSeeker already has a single controller named "JobSeeker", so its existing
-// Views/JobSeeker/ folder already satisfies the default lookup convention as-is).
+builder.Services.Configure<MicroserviceOptions>(
+    builder.Configuration.GetSection(MicroserviceOptions.SectionName));
+
+builder.Services.AddHttpClient<IMicroserviceGateway, MicroserviceGateway>();
+
+
 builder.Services.Configure<RazorViewEngineOptions>(options =>
 {
     options.ViewLocationFormats.Add("/Views/Admin/{1}/{0}" + RazorViewEngine.ViewExtension);
@@ -67,6 +78,34 @@ else
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
+app.UseXRay("JobCareerPlatform");
+
+var perfLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("RequestTiming");
+
+app.Use(async (context, next) =>
+{
+    var stopwatch = Stopwatch.StartNew();
+    try
+    {
+        await next();
+    }
+    finally
+    {
+        stopwatch.Stop();
+
+        string requestPath = context.Request.Path.Value ?? "/";
+        if (!Path.HasExtension(requestPath))
+        {
+            perfLogger.LogInformation(
+                "PERF|{Method}|{Path}|{StatusCode}|{ElapsedMilliseconds}",
+                context.Request.Method,
+                requestPath,
+                context.Response.StatusCode,
+                stopwatch.ElapsedMilliseconds);
+        }
+    }
 });
 
 app.UseRouting();

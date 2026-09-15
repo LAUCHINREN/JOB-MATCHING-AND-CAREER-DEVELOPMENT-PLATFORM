@@ -1,0 +1,9 @@
+{
+  "body": "{\"jobId\":5,\"jobTitle\":\"Junior Software Engineer\",\"companyName\":\"Acme Technologies\",\"location\":\"Kuala Lumpur\",\"employmentType\":\"Full Time\",\"jobCategory\":\"Information Technology\",\"requiredSkills\":\"C#, ASP.NET, SQL\",\"salaryMin\":3500,\"salaryMax\":5000,\"matchedJobSeekerIds\":[\"REPLACE-WITH-A-REAL-JOBSEEKER-USERID\"]}",
+  "isBase64Encoded": false,
+  "httpMethod": "POST",
+  "path": "/job-alerts",
+  "headers": {
+    "Content-Type": "application/json"
+  }
+}

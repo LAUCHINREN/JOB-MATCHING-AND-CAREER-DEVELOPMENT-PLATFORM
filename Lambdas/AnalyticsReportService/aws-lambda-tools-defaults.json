@@ -1,0 +1,18 @@
+{
+  "Information": [
+    "Deploy with: dotnet lambda deploy-function --project-location Lambdas/AnalyticsReportService",
+    "The execution role JobCareerPlatformLambdaRole must exist in IAM before deploying."
+  ],
+  "profile": "default",
+  "region": "ap-southeast-2",
+  "configuration": "Release",
+  "function-runtime": "dotnet8",
+  "function-memory-size": 512,
+  "function-timeout": 60,
+  "function-handler": "AnalyticsReportService::AnalyticsReportService.Function::FunctionHandler",
+  "function-name": "analytics-report-service",
+  "function-description": "Administrator microservice - writes analytics reports to S3 and returns a presigned link",
+  "function-role": "arn:aws:iam::209115427365:role/JobCareerPlatformLambdaRole",
+  "tracing-mode": "Active",
+  "environment-variables": "REPORT_BUCKET_NAME=g6cloudassignment-reports"
+}
