@@ -74,6 +74,12 @@ namespace JobCareerPlatform.Controllers
         {
             string userId = _userManager.GetUserId(User)!;
 
+            bool alreadyExists = await _context.CompanyProfileTable.AnyAsync(c => c.UserId == userId);
+            if (alreadyExists)
+            {
+                return RedirectToAction(nameof(Index)); // one profile per employer
+            }
+
             if (ModelState.IsValid)
             {
                 CompanyProfile profile = new CompanyProfile

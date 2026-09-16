@@ -1254,11 +1254,13 @@ namespace JobCareerPlatform.Controllers
             // Dictionary:
             // Employer ApplicationUser Id -> Company Name
             ViewBag.Companies = companyProfiles
+                .GroupBy(c => c.UserId)
                 .ToDictionary(
-                    c => c.UserId,
-                    c => !string.IsNullOrWhiteSpace(c.CompanyName)
-                        ? c.CompanyName
-                        : "Company unavailable"
+                    g => g.Key,
+                    g => g.OrderBy(c => c.CompanyProfileId)
+                        .Select(c => c.CompanyName)
+                        .FirstOrDefault(name => !string.IsNullOrWhiteSpace(name))
+                        ?? "Company unavailable"
                 );
 
             return View(applications);
